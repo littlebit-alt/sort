@@ -23,8 +23,16 @@
       margin-bottom: 20px;
     }
 
+    .sort-label {
+      display: inline-block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      font-size: 18px;
+      color: #2c3e50;
+    }
+
     button {
-      margin: 8px;
+      margin: 8px 6px;
       padding: 10px 20px;
       background: #2980b9;
       color: white;
@@ -36,7 +44,8 @@
     }
 
     button.avg-button {
-      background: #27ae60 !important;
+      background: #f39c12 !important;
+      color: #fff;
     }
 
     button:hover {
@@ -62,6 +71,7 @@
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
       border-radius: 8px;
       overflow: hidden;
+      transition: all 0.3s ease-in-out;
     }
 
     th, td {
@@ -80,6 +90,41 @@
       font-weight: bold;
       color: #e74c3c;
       background-color: #fcefe7;
+    }
+
+    td.highlight-column {
+      background-color: #fffacc !important;
+    }
+
+    td.highest-score {
+      background-color: #ffcccc !important;
+      color: #c0392b;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h2>📊 Student Grades S1</h2>
+  <div style="text-align:center">
+    <input type="text" id="searchInput" placeholder="Search student name..." oninput="handleSearch()" />
+  </div>
+  <div class="button-container" id="controls">
+    <span class="sort-label">Sort by Module:</span><br>
+  </div>
+  <table id="dataTable"></table>
+
+  </style>
+</head>
+<body>
+  <h2>📊 Student Grades Dashboard</h2>
+  <div style="text-align:center">
+    <input type="text" id="searchInput" placeholder="Search student name..." oninput="handleSearch()" />
+  </div>
+  <div class="button-container" id="controls">
+    <span class="sort-label">Sort by Module:</span><br>
+  </div>
+  <table id="dataTable"></table>
+
     }
   </style>
 </head>
@@ -3001,7 +3046,6 @@
 
     ];
 
-    
     let currentSort = null;
     let originalData = [...studentData];
     let filteredData = [...studentData];
@@ -3025,9 +3069,10 @@
         currentSort = null;
         displayTable(filteredData);
       } else {
-        const sorted = [...filteredData].sort((a, b) => b[column] - a[column]);
+        document.querySelectorAll("button").forEach(b => b.dataset.sorted = "false");
         btn.dataset.sorted = "true";
         currentSort = column;
+        const sorted = [...filteredData].sort((a, b) => b[column] - a[column]);
         displayTable(sorted, column);
       }
     }
@@ -3038,7 +3083,7 @@
 
       const thead = document.createElement("thead");
       const headerRow = document.createElement("tr");
-      headerRow.appendChild(document.createElement("th")); // Rank column
+      headerRow.appendChild(document.createElement("th"));
       headers.forEach(header => {
         const th = document.createElement("th");
         th.textContent = header;
@@ -3048,6 +3093,8 @@
       table.appendChild(thead);
 
       const tbody = document.createElement("tbody");
+      let maxValue = sortedColumn ? Math.max(...data.map(d => d[sortedColumn])) : null;
+
       data.forEach((row, index) => {
         const tr = document.createElement("tr");
         const rankTd = document.createElement("td");
@@ -3058,6 +3105,12 @@
         headers.forEach(header => {
           const td = document.createElement("td");
           td.textContent = row[header];
+          if (sortedColumn && header === sortedColumn) {
+            td.classList.add("highlight-column");
+            if (row[header] === maxValue) {
+              td.classList.add("highest-score");
+            }
+          }
           tr.appendChild(td);
         });
         tbody.appendChild(tr);
