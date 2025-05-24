@@ -20,7 +20,7 @@
 
     .button-container {
       text-align: center;
-      margin-bottom: 2px;
+      margin-bottom: 20px;
     }
 
     button {
@@ -35,9 +35,23 @@
       transition: background 0.3s, transform 0.2s;
     }
 
+    button.avg-button {
+      background: #27ae60 !important;
+    }
+
     button:hover {
       background-color: #3498db;
       transform: scale(1.05);
+    }
+
+    input[type="text"] {
+      width: 300px;
+      padding: 10px;
+      font-size: 16px;
+      margin-bottom: 20px;
+      border: 2px solid #2980b9;
+      border-radius: 6px;
+      outline: none;
     }
 
     table {
@@ -71,6 +85,9 @@
 </head>
 <body>
   <h2>📊 Student Grades Dashboard</h2>
+  <div style="text-align:center">
+    <input type="text" id="searchInput" placeholder="Search student name..." oninput="handleSearch()" />
+  </div>
   <div class="button-container" id="controls"><strong>Sort by Module:</strong><br></div>
   <table id="dataTable"></table>
 
@@ -2987,6 +3004,7 @@
     
     let currentSort = null;
     let originalData = [...studentData];
+    let filteredData = [...studentData];
     const headers = Object.keys(studentData[0]);
 
     function createButtons() {
@@ -2996,6 +3014,7 @@
         btn.textContent = header;
         btn.dataset.sorted = "false";
         btn.onclick = () => toggleSort(header, btn);
+        if (header === "AVG") btn.classList.add("avg-button");
         controls.appendChild(btn);
       });
     }
@@ -3004,9 +3023,9 @@
       if (currentSort === column && btn.dataset.sorted === "true") {
         btn.dataset.sorted = "false";
         currentSort = null;
-        displayTable(originalData);
+        displayTable(filteredData);
       } else {
-        const sorted = [...studentData].sort((a, b) => b[column] - a[column]);
+        const sorted = [...filteredData].sort((a, b) => b[column] - a[column]);
         btn.dataset.sorted = "true";
         currentSort = column;
         displayTable(sorted, column);
@@ -3044,6 +3063,12 @@
         tbody.appendChild(tr);
       });
       table.appendChild(tbody);
+    }
+
+    function handleSearch() {
+      const input = document.getElementById("searchInput").value.toLowerCase();
+      filteredData = originalData.filter(student => student.Name.toLowerCase().includes(input));
+      displayTable(filteredData);
     }
 
     createButtons();
