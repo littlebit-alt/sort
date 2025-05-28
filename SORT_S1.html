@@ -1,0 +1,3366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Student Grades Viewer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&family=Montserrat:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+       .navigation-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 2rem;
+      gap: 1rem;
+    }
+    
+    .nav-button {
+      padding: 12px 24px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: var(--border-radius);
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: var(--box-shadow);
+      font-family: 'Montserrat', sans-serif;
+      text-decoration: none;
+      text-align: center;
+    }
+    
+    .nav-button:hover {
+      background-color: var(--secondary);
+      transform: translateY(-2px);
+    }
+    
+    .nav-button.active {
+      background-color: var(--accent);
+      font-weight: 600;
+    }
+    :root {
+      --primary: #4361ee;
+      --secondary: #3f37c9;
+      --accent: #f72585;
+      --light: #f8f9fa;
+      --dark: #212529;
+      --success: #4cc9f0;
+      --warning: #f8961e;
+      --danger: #ef233c;
+      --border-radius: 12px;
+      --box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+      --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+    
+    body {
+      font-family: 'Poppins', sans-serif;
+      padding: 2rem;
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      color: var(--dark);
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    h2 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 2.5rem;
+      margin-bottom: 1.5rem;
+      text-align: center;
+      color: var(--secondary);
+      position: relative;
+      display: inline-block;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    h2::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      border-radius: 2px;
+    }
+
+    .search-container {
+      text-align: center;
+      margin-bottom: 2rem;
+      position: relative;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      max-width: 500px;
+      padding: 12px 20px;
+      font-size: 1rem;
+      border: none;
+      border-radius: var(--border-radius);
+      background-color: white;
+      box-shadow: var(--box-shadow);
+      transition: var(--transition);
+      border: 2px solid transparent;
+    }
+
+    input[type="text"]:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+    }
+
+    input[type="text"]::placeholder {
+      color: #adb5bd;
+    }
+
+    .button-container {
+      text-align: center;
+      margin-bottom: 2rem;
+      background: white;
+      padding: 1.5rem;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+    }
+
+    .sort-label {
+      display: block;
+      margin-bottom: 1rem;
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: var(--secondary);
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    button {
+      margin: 0.5rem;
+      padding: 10px 20px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 50px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      font-family: 'Montserrat', sans-serif;
+      letter-spacing: 0.5px;
+    }
+
+    button.avg-button {
+      background: var(--accent) !important;
+    }
+
+    button:hover {
+      background-color: var(--secondary);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 2rem;
+      background-color: white;
+      box-shadow: var(--box-shadow);
+      border-radius: var(--border-radius);
+      overflow: hidden;
+      transition: var(--transition);
+    }
+
+    th, td {
+      padding: 15px;
+      text-align: center;
+      border-bottom: 1px solid #e9ecef;
+    }
+
+    th {
+      background-color: var(--primary);
+      color: white;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.85rem;
+      letter-spacing: 1px;
+      position: sticky;
+      top: 0;
+    }
+
+    tr:hover {
+      background-color: #f8f9fa;
+    }
+
+    td.sorted-rank {
+      font-weight: bold;
+      color: var(--danger);
+      background-color: rgba(239, 35, 60, 0.1);
+    }
+
+    td.highlight-column {
+      background-color: rgba(76, 201, 240, 0.1) !important;
+      font-weight: 600;
+    }
+
+    td.highest-score {
+      background-color: rgba(239, 35, 60, 0.1) !important;
+      color: var(--danger);
+      font-weight: bold;
+      position: relative;
+    }
+
+    td.highest-score::after {
+      content: '★';
+      position: absolute;
+      right: 5px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--danger);
+      font-size: 0.8rem;
+    }
+
+    .average-row td {
+      background-color: #f1f8ff;
+      font-weight: bold;
+      border-bottom: 2px solid var(--primary);
+      color: var(--secondary);
+      font-size: 1.05rem;
+    }
+
+    .average-above-10-row td {
+      background-color: #e6f7e6;
+      font-weight: bold;
+      border-bottom: 2px solid #4CAF50;
+      color: #2E7D32;
+      font-size: 1.05rem;
+    }
+
+    .average-row td:first-child,
+    .average-above-10-row td:first-child {
+      background-color: var(--primary);
+      color: white;
+      font-weight: 600;
+    }
+
+    .average-above-10-row td:first-child {
+      background-color: #4CAF50;
+    }
+
+    .no-results {
+      text-align: center;
+      font-size: 1.2rem;
+      color: #6c757d;
+      margin-top: 2rem;
+      font-weight: 500;
+      padding: 2rem;
+      background: white;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      body {
+        padding: 1rem;
+      }
+      
+      h2 {
+        font-size: 1.8rem;
+      }
+      
+      .button-container {
+        padding: 1rem;
+      }
+      
+      button {
+        margin: 0.3rem;
+        padding: 8px 15px;
+        font-size: 0.9rem;
+      }
+      
+      th, td {
+        padding: 10px 5px;
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+    <div class="container">
+    
+    <div class="navigation-container">
+      <a href="SORT_S1.html" class="nav-button active">Semester 1</a>
+      <a href="SORT_S2.html" class="nav-button">Semester 2</a>
+      <a href="deliberation_Global.html" class="nav-button">Global Average</a>
+    </div>
+  
+    <h2>📊 Student Grades Dashboard</h2>
+    <div class="search-container">
+      <input type="text" id="searchInput" placeholder="🔍 Search student name..." oninput="handleSearch()" />
+    </div>
+    <div class="button-container" id="controls">
+      <span class="sort-label">Sort by Module</span>
+    </div>
+    <table id="dataTable"></table>
+    <div id="noResults" class="no-results" style="display: none;">
+      <p>No matching students found</p>
+      <p style="font-size: 3rem;">😕</p>
+    </div>
+  </div>
+
+  <script>
+    const studentData = [
+      
+ {
+   "Name": "59 -  BENMOHAMMED  FIRAS\nELHADJ",
+   "ASD": 7,
+   "ADO": 5.4,
+   "SI": 14.6,
+   "THG": 12.95,
+   "LOGIC": 11.1,
+   "MN": 14.9,
+   "ENG": 20,
+   "AVG": 11.18
+ },
+ {
+   "Name": "133 -  HADBAOUI  MERIEM\nSELSABIL",
+   "ASD": 9.95,
+   "ADO": 3.51,
+   "SI": 10.4,
+   "THG": 8.25,
+   "LOGIC": 13.2,
+   "MN": 3.6,
+   "ENG": 20,
+   "AVG": 8.86
+ },
+
+ {
+   "Name": "65 -  BENYAHIA  Firdaws amina",
+   "ASD": 5.9,
+   "ADO": 4,
+   "SI": 9.4,
+   "THG": 12,
+   "LOGIC": 11.45,
+   "MN": 3.85,
+   "ENG": 20,
+   "AVG": 8.28
+ },
+ {
+   "Name": "129 -  GUETTAI  Aya",
+   "ASD": 8.25,
+   "ADO": 4.8,
+   "SI": 15.25,
+   "THG": 9.15,
+   "LOGIC": 13.1,
+   "MN": 12.85,
+   "ENG": 19.5,
+   "AVG": 10.92
+ },
+ {
+   "Name": "198 -  MIAADI  SALOUA",
+   "ASD": 6.25,
+   "ADO": 3.15,
+   "SI": 13,
+   "THG": 14.9,
+   "LOGIC": 11.8,
+   "MN": 7.47,
+   "ENG": 19.5,
+   "AVG": 9.69
+ },
+ {
+   "Name": "102 -  DERBANE  ABDELLAH",
+   "ASD": 7.45,
+   "ADO": 10,
+   "SI": 14.6,
+   "THG": 11.45,
+   "LOGIC": 15.5,
+   "MN": 13.3,
+   "ENG": 19,
+   "AVG": 12.23
+ },
+ {
+   "Name": "90 -  CHEBABHI  SAID ELMOATAZ",
+   "ASD": 7.75,
+   "ADO": 8.2,
+   "SI": 12.3,
+   "THG": 12.6,
+   "LOGIC": 13.8,
+   "MN": 5.5,
+   "ENG": 19,
+   "AVG": 10.47
+ },
+ {
+   "Name": "157 -  KASMI  HADIL",
+   "ASD": 5.95,
+   "ADO": 6.85,
+   "SI": 13.1,
+   "THG": 13.55,
+   "LOGIC": 15.65,
+   "MN": 5.4,
+   "ENG": 19,
+   "AVG": 10.37
+ },
+ {
+   "Name": "86 -  BOUSBA  ILYAS AYOUB",
+   "ASD": 5.15,
+   "ADO": 6.7,
+   "SI": 8.8,
+   "THG": 7.9,
+   "LOGIC": 9.45,
+   "MN": 11.4,
+   "ENG": 19,
+   "AVG": 8.66
+ },
+ {
+   "Name": "179 -  MAHAMMEDI  Aya",
+   "ASD": 3.8,
+   "ADO": 4.2,
+   "SI": 6.8,
+   "THG": 10.55,
+   "LOGIC": 9.8,
+   "MN": 5.8,
+   "ENG": 19,
+   "AVG": 7.23
+ },
+ {
+   "Name": "60 -  BENRABAH  YACINE",
+   "ASD": 11.6,
+   "ADO": 6,
+   "SI": 10.1,
+   "THG": 11.05,
+   "LOGIC": 10.85,
+   "MN": 11.2,
+   "ENG": 18,
+   "AVG": 10.46
+ },
+ {
+   "Name": "218 -  REZIGAT  Zakarya",
+   "ASD": 8,
+   "ADO": 6.7,
+   "SI": 8.6,
+   "THG": 11.82,
+   "LOGIC": 14.35,
+   "MN": 3.4,
+   "ENG": 18,
+   "AVG": 9.19
+ },
+ {
+   "Name": "115 -  DJOUIBA  ADEM",
+   "ASD": 5.15,
+   "ADO": 7.9,
+   "SI": 11.05,
+   "THG": 5,
+   "LOGIC": 8.4,
+   "MN": 6.67,
+   "ENG": 18,
+   "AVG": 8.16
+ },
+ {
+   "Name": "247 -  YAHIAOUI  SAMIA",
+   "ASD": 10.4,
+   "ADO": 0.2,
+   "SI": 10.07,
+   "THG": 5.27,
+   "LOGIC": 0,
+   "MN": 0,
+   "ENG": 18,
+   "AVG": 5.66
+ },
+ {
+   "Name": "78 -  BOUDJOUDI  Maria ines",
+   "ASD": 8.4,
+   "ADO": 4.8,
+   "SI": 14.35,
+   "THG": 13.2,
+   "LOGIC": 12.4,
+   "MN": 8.8,
+   "ENG": 17.5,
+   "AVG": 10.56
+ },
+ {
+   "Name": "264 -  ZOUBIRI  CHAHINEZ",
+   "ASD": 8.6,
+   "ADO": 4.1,
+   "SI": 13.05,
+   "THG": 12.55,
+   "LOGIC": 15.4,
+   "MN": 16.25,
+   "ENG": 17,
+   "AVG": 11.42
+ },
+ {
+   "Name": "210 -  OUGHNIA  MANAR",
+   "ASD": 8.1,
+   "ADO": 4.5,
+   "SI": 11,
+   "THG": 17,
+   "LOGIC": 17,
+   "MN": 8,
+   "ENG": 17,
+   "AVG": 10.74
+ },
+ {
+   "Name": "137 -  HALIB  YASSAMINE",
+   "ASD": 7.3,
+   "ADO": 11.82,
+   "SI": 12.9,
+   "THG": 9.4,
+   "LOGIC": 12.5,
+   "MN": 3.93,
+   "ENG": 17,
+   "AVG": 10.3
+ },
+ {
+   "Name": "206 -  NECIR  MERIEM",
+   "ASD": 11.5,
+   "ADO": 1.9,
+   "SI": 13.5,
+   "THG": 12.75,
+   "LOGIC": 13.15,
+   "MN": 6.5,
+   "ENG": 17,
+   "AVG": 10.16
+ },
+ {
+   "Name": "51 -  BENBOUDINA  TARIK",
+   "ASD": 7.4,
+   "ADO": 6.7,
+   "SI": 10.5,
+   "THG": 8.67,
+   "LOGIC": 10.5,
+   "MN": 9.15,
+   "ENG": 17,
+   "AVG": 9.22
+ },
+ {
+   "Name": "1 -  ABDELAZIZ  SOULEYMAN",
+   "ASD": 11.4,
+   "ADO": 3.62,
+   "SI": 10.01,
+   "THG": 7.28,
+   "LOGIC": 7.6,
+   "MN": 2.93,
+   "ENG": 17,
+   "AVG": 7.98
+ },
+ {
+   "Name": "24 -  BAALI\nMOHAMMEDABDELMOUMIN",
+   "ASD": 5,
+   "ADO": 7,
+   "SI": 12.4,
+   "THG": 3.79,
+   "LOGIC": 6.2,
+   "MN": 2.6,
+   "ENG": 17,
+   "AVG": 7.21
+ },
+ {
+   "Name": "195 -  MESSEGUEM  SOHEYB",
+   "ASD": 2.4,
+   "ADO": 4.8,
+   "SI": 5.8,
+   "THG": 8.73,
+   "LOGIC": 8.85,
+   "MN": 4,
+   "ENG": 17,
+   "AVG": 6.2
+ },
+ {
+   "Name": "259 -  ZIDANI  Ilhem",
+   "ASD": 3.2,
+   "ADO": 1,
+   "SI": 5.2,
+   "THG": 0.28,
+   "LOGIC": 13.25,
+   "MN": 3.07,
+   "ENG": 17,
+   "AVG": 4.9
+ },
+ {
+   "Name": "180 -  MAHDADI  SAMIA",
+   "ASD": 9.5,
+   "ADO": 5.5,
+   "SI": 13.9,
+   "THG": 14.9,
+   "LOGIC": 14.9,
+   "MN": 19,
+   "ENG": 16.5,
+   "AVG": 12.55
+ },
+ {
+   "Name": "160 -  KHODJA  SABRINE",
+   "ASD": 6.95,
+   "ADO": 4.8,
+   "SI": 14.4,
+   "THG": 11.4,
+   "LOGIC": 10.1,
+   "MN": 12.3,
+   "ENG": 16.5,
+   "AVG": 10.16
+ },
+ {
+   "Name": "48 -  BENAISSI  MAHAMMED SAID",
+   "ASD": 6.2,
+   "ADO": 7.8,
+   "SI": 15.2,
+   "THG": 10.05,
+   "LOGIC": 13.6,
+   "MN": 3.65,
+   "ENG": 16.5,
+   "AVG": 9.92
+ },
+ {
+   "Name": "72 -  BOUBAKRI  AYA",
+   "ASD": 5.6,
+   "ADO": 11.8,
+   "SI": 10.3,
+   "THG": 10.72,
+   "LOGIC": 11.05,
+   "MN": 7.67,
+   "ENG": 16.5,
+   "AVG": 9.91
+ },
+ {
+   "Name": "92 -  CHELALI  WALID",
+   "ASD": 9.7,
+   "ADO": 6.5,
+   "SI": 7.7,
+   "THG": 12.35,
+   "LOGIC": 11.2,
+   "MN": 3,
+   "ENG": 16.5,
+   "AVG": 8.83
+ },
+ {
+   "Name": "217 -  REZGUI  NOUR ELHOUDA",
+   "ASD": 12.1,
+   "ADO": 0.75,
+   "SI": 10.1,
+   "THG": 4.47,
+   "LOGIC": 4.1,
+   "MN": 5.63,
+   "ENG": 16.5,
+   "AVG": 7.11
+ },
+ {
+   "Name": "261 -  ZIDELKHIL  YOUSRA",
+   "ASD": 9.75,
+   "ADO": 9.11,
+   "SI": 14.8,
+   "THG": 14.65,
+   "LOGIC": 17.7,
+   "MN": 13.25,
+   "ENG": 16,
+   "AVG": 13.01
+ },
+ {
+   "Name": "143 -  HAMOUD  CHOAIB",
+   "ASD": 10.65,
+   "ADO": 6.65,
+   "SI": 15.3,
+   "THG": 16.1,
+   "LOGIC": 14.8,
+   "MN": 14.87,
+   "ENG": 16,
+   "AVG": 12.84
+ },
+ {
+   "Name": "216 -  REDAOUI  MALAK",
+   "ASD": 8.15,
+   "ADO": 4.2,
+   "SI": 15.7,
+   "THG": 15.5,
+   "LOGIC": 17.25,
+   "MN": 13.9,
+   "ENG": 16,
+   "AVG": 12.09
+ },
+ {
+   "Name": "212 -  OULD TOUMI  AHMED",
+   "ASD": 11.45,
+   "ADO": 6.3,
+   "SI": 15.75,
+   "THG": 12.8,
+   "LOGIC": 15.5,
+   "MN": 8.9,
+   "ENG": 16,
+   "AVG": 11.93
+ },
+ {
+   "Name": "126 -  GOULAILIZ  HANA",
+   "ASD": 10.3,
+   "ADO": 5,
+   "SI": 12.1,
+   "THG": 14.7,
+   "LOGIC": 15.4,
+   "MN": 9.75,
+   "ENG": 16,
+   "AVG": 11.12
+ },
+ {
+   "Name": "159 -  KHAOUI  CHEIMA",
+   "ASD": 7.95,
+   "ADO": 8.5,
+   "SI": 12.7,
+   "THG": 8.37,
+   "LOGIC": 13.35,
+   "MN": 11.9,
+   "ENG": 16,
+   "AVG": 10.67
+ },
+ {
+   "Name": "146 -  HANAFI  IKRAM",
+   "ASD": 9.1,
+   "ADO": 4.9,
+   "SI": 11.85,
+   "THG": 11.3,
+   "LOGIC": 14.2,
+   "MN": 6.97,
+   "ENG": 16,
+   "AVG": 9.91
+ },
+ {
+   "Name": "96 -  CHERIFI  AHMED CHARIF",
+   "ASD": 5.4,
+   "ADO": 3.2,
+   "SI": 10.9,
+   "THG": 10.5,
+   "LOGIC": 13.6,
+   "MN": 5.15,
+   "ENG": 16,
+   "AVG": 8.31
+ },
+ {
+   "Name": "150 -  HERAIZ  IMADEDDINE",
+   "ASD": 4.65,
+   "ADO": 4.31,
+   "SI": 12.8,
+   "THG": 9.1,
+   "LOGIC": 11.75,
+   "MN": 4.4,
+   "ENG": 16,
+   "AVG": 8.24
+ },
+ {
+   "Name": "30 -  BAKRI  MOHAMMED EL\nBACHIR",
+   "ASD": 8.25,
+   "ADO": 8.34,
+   "SI": 14.65,
+   "THG": 13.5,
+   "LOGIC": 14.85,
+   "MN": 10.92,
+   "ENG": 15.5,
+   "AVG": 11.74
+ },
+ {
+   "Name": "91 -  CHEBILI  NADJOUA",
+   "ASD": 11,
+   "ADO": 7,
+   "SI": 14.9,
+   "THG": 9.53,
+   "LOGIC": 11.8,
+   "MN": 9.25,
+   "ENG": 15.5,
+   "AVG": 10.96
+ },
+ {
+   "Name": "34 -  BELBEY  NASSIM AMINE",
+   "ASD": 8.7,
+   "ADO": 8.05,
+   "SI": 11.8,
+   "THG": 11.67,
+   "LOGIC": 10.65,
+   "MN": 12.2,
+   "ENG": 15.5,
+   "AVG": 10.64
+ },
+ {
+   "Name": "183 -  MAROUF  YOUNES",
+   "ASD": 7.65,
+   "ADO": 4.6,
+   "SI": 11.85,
+   "THG": 12,
+   "LOGIC": 11.25,
+   "MN": 5.8,
+   "ENG": 15.5,
+   "AVG": 9.12
+ },
+ {
+   "Name": "56 -  BENHALIMA  Mohammed",
+   "ASD": 7.8,
+   "ADO": 4.75,
+   "SI": 11.6,
+   "THG": 9.38,
+   "LOGIC": 13.35,
+   "MN": 3.55,
+   "ENG": 15.5,
+   "AVG": 8.78
+ },
+ {
+   "Name": "2 -  ABDELHAFID  OMAYMA",
+   "ASD": 6.1,
+   "ADO": 3.5,
+   "SI": 11.5,
+   "THG": 11.05,
+   "LOGIC": 10.4,
+   "MN": 7.2,
+   "ENG": 15.5,
+   "AVG": 8.51
+ },
+ {
+   "Name": "242 -  TITOUM  ISSAM",
+   "ASD": 4.7,
+   "ADO": 4.3,
+   "SI": 11.8,
+   "THG": 11.95,
+   "LOGIC": 10.25,
+   "MN": 3.93,
+   "ENG": 15.5,
+   "AVG": 8.14
+ },
+ {
+   "Name": "25 -  BAALI  Mohamed cheikhe",
+   "ASD": 3.25,
+   "ADO": 2.9,
+   "SI": 11.3,
+   "THG": 8.3,
+   "LOGIC": 6.75,
+   "MN": 2.1,
+   "ENG": 15.5,
+   "AVG": 6.39
+ },
+ {
+   "Name": "254 -  ZELLAGUI  SAFWAN",
+   "ASD": 6.85,
+   "ADO": 10.2,
+   "SI": 14.5,
+   "THG": 12.7,
+   "LOGIC": 16.5,
+   "MN": 12.72,
+   "ENG": 15,
+   "AVG": 12.1
+ },
+ {
+   "Name": "55 -  BENGUESMIA  LOUBNA",
+   "ASD": 8.55,
+   "ADO": 6.25,
+   "SI": 12.8,
+   "THG": 13.9,
+   "LOGIC": 15.75,
+   "MN": 14.3,
+   "ENG": 15,
+   "AVG": 11.61
+ },
+ {
+   "Name": "263 -  ZIOUCHE  BOUTHAINA",
+   "ASD": 11.3,
+   "ADO": 5.9,
+   "SI": 10,
+   "THG": 10.3,
+   "LOGIC": 15.3,
+   "MN": 7.7,
+   "ENG": 15,
+   "AVG": 10.2
+ },
+ {
+   "Name": "32 -  BARKATI  AYA",
+   "ASD": 10.75,
+   "ADO": 4.1,
+   "SI": 10.4,
+   "THG": 9.5,
+   "LOGIC": 16.45,
+   "MN": 7.85,
+   "ENG": 15,
+   "AVG": 9.9
+ },
+ {
+   "Name": "194 -  MESSAOUDI  AMIRA",
+   "ASD": 6.2,
+   "ADO": 4.95,
+   "SI": 15,
+   "THG": 10.1,
+   "LOGIC": 14.55,
+   "MN": 7,
+   "ENG": 15,
+   "AVG": 9.8
+ },
+ {
+   "Name": "68 -  BETKA  LOUBNA",
+   "ASD": 6.6,
+   "ADO": 7.04,
+   "SI": 14.05,
+   "THG": 5.15,
+   "LOGIC": 11.95,
+   "MN": 10.73,
+   "ENG": 15,
+   "AVG": 9.61
+ },
+ {
+   "Name": "88 -  BOUSLAH  YOUSRA",
+   "ASD": 7.1,
+   "ADO": 6.8,
+   "SI": 11.2,
+   "THG": 12.62,
+   "LOGIC": 12.2,
+   "MN": 5.9,
+   "ENG": 15,
+   "AVG": 9.48
+ },
+ {
+   "Name": "49 -  BENAISSOU  MOHAMMED\nIDRIS",
+   "ASD": 4.85,
+   "ADO": 3.5,
+   "SI": 10.5,
+   "THG": 12.05,
+   "LOGIC": 11.4,
+   "MN": 9.72,
+   "ENG": 15,
+   "AVG": 8.62
+ },
+ {
+   "Name": "208 -  OMRI  ABDERRAHMEN",
+   "ASD": 5.5,
+   "ADO": 4.3,
+   "SI": 11.7,
+   "THG": 9.9,
+   "LOGIC": 10,
+   "MN": 4.35,
+   "ENG": 15,
+   "AVG": 8
+ },
+ {
+   "Name": "63 -  BENTATA  ABDELLATIF",
+   "ASD": 0.5,
+   "ADO": 2.1,
+   "SI": 9,
+   "THG": 6.65,
+   "LOGIC": 11.6,
+   "MN": 5.93,
+   "ENG": 15,
+   "AVG": 6.14
+ },
+ {
+   "Name": "103 -  DILMI  CHAIMA",
+   "ASD": 4.1,
+   "ADO": 4.8,
+   "SI": 6.35,
+   "THG": 8.1,
+   "LOGIC": 5.65,
+   "MN": 4.87,
+   "ENG": 15,
+   "AVG": 6.12
+ },
+ {
+   "Name": "231 -  SEGHIOUR  LINA MARIYA",
+   "ASD": 13,
+   "ADO": 9.9,
+   "SI": 14.25,
+   "THG": 13.4,
+   "LOGIC": 18.7,
+   "MN": 10.65,
+   "ENG": 14.5,
+   "AVG": 13.22
+ },
+ {
+   "Name": "64 -  BENTOUMI  Aden aicha",
+   "ASD": 8.75,
+   "ADO": 4.8,
+   "SI": 13.75,
+   "THG": 15.1,
+   "LOGIC": 14.9,
+   "MN": 13.95,
+   "ENG": 14.5,
+   "AVG": 11.52
+ },
+ {
+   "Name": "54 -  BENGASMIA  ANES",
+   "ASD": 12,
+   "ADO": 13.2,
+   "SI": 12.4,
+   "THG": 8.67,
+   "LOGIC": 10.15,
+   "MN": 6.05,
+   "ENG": 14.5,
+   "AVG": 11.07
+ },
+ {
+   "Name": "71 -  BOUALI  ANOUAR BOUCHRA",
+   "ASD": 5,
+   "ADO": 4.1,
+   "SI": 12.05,
+   "THG": 11.25,
+   "LOGIC": 10,
+   "MN": 9.57,
+   "ENG": 14.5,
+   "AVG": 8.73
+ },
+ {
+   "Name": "52 -  BENDJEDDOU  MOHAMMED\nIMADEDDINE",
+   "ASD": 10.2,
+   "ADO": 1.8,
+   "SI": 10.9,
+   "THG": 12.7,
+   "LOGIC": 7.7,
+   "MN": 4.75,
+   "ENG": 14.5,
+   "AVG": 8.35
+ },
+ {
+   "Name": "14 -  AMEUR  AKRAM\nABDERRAHIM",
+   "ASD": 3.4,
+   "ADO": 6.8,
+   "SI": 13.05,
+   "THG": 7.4,
+   "LOGIC": 6.2,
+   "MN": 6.75,
+   "ENG": 14.5,
+   "AVG": 7.81
+ },
+ {
+   "Name": "219 -  SAADA  AYA QATR EN\nNADA",
+   "ASD": 4.45,
+   "ADO": 2.81,
+   "SI": 10.75,
+   "THG": 3.93,
+   "LOGIC": 5.6,
+   "MN": 4.78,
+   "ENG": 14.5,
+   "AVG": 6.07
+ },
+ {
+   "Name": "260 -  ZIDELKHIL  HANA",
+   "ASD": 7.7,
+   "ADO": 8.51,
+   "SI": 15.1,
+   "THG": 14.45,
+   "LOGIC": 16.35,
+   "MN": 9.9,
+   "ENG": 14,
+   "AVG": 11.84
+ },
+ {
+   "Name": "176 -  MAAMRI  LEILA",
+   "ASD": 8.6,
+   "ADO": 5.7,
+   "SI": 13,
+   "THG": 11.55,
+   "LOGIC": 16.45,
+   "MN": 12.65,
+   "ENG": 14,
+   "AVG": 11.08
+ },
+ {
+   "Name": "156 -  KARA  IKRAM RIHEM",
+   "ASD": 7.8,
+   "ADO": 6.1,
+   "SI": 14.2,
+   "THG": 9.5,
+   "LOGIC": 13.9,
+   "MN": 11.2,
+   "ENG": 14,
+   "AVG": 10.47
+ },
+ {
+   "Name": "184 -  MAZARI  ELHADJ AMIN",
+   "ASD": 11.8,
+   "ADO": 6.55,
+   "SI": 10,
+   "THG": 11.95,
+   "LOGIC": 10.05,
+   "MN": 6.48,
+   "ENG": 14,
+   "AVG": 9.75
+ },
+ {
+   "Name": "97 -  CHIKOUCHE  KHAWLA",
+   "ASD": 5.55,
+   "ADO": 9.9,
+   "SI": 13.1,
+   "THG": 6.4,
+   "LOGIC": 11,
+   "MN": 4.55,
+   "ENG": 14,
+   "AVG": 8.98
+ },
+ {
+   "Name": "191 -  MENAA  SARRA",
+   "ASD": 10,
+   "ADO": 2.7,
+   "SI": 10.6,
+   "THG": 8.7,
+   "LOGIC": 12.55,
+   "MN": 5.4,
+   "ENG": 14,
+   "AVG": 8.58
+ },
+ {
+   "Name": "22 -  AZZOUZ  AYOUB",
+   "ASD": 10.5,
+   "ADO": 2.2,
+   "SI": 10.1,
+   "THG": 5.1,
+   "LOGIC": 8.8,
+   "MN": 3.55,
+   "ENG": 14,
+   "AVG": 7.33
+ },
+ {
+   "Name": "82 -  BOUKHENISSA  YASSINE",
+   "ASD": 2.1,
+   "ADO": 9.1,
+   "SI": 10.3,
+   "THG": 5.05,
+   "LOGIC": 8.25,
+   "MN": 4.2,
+   "ENG": 14,
+   "AVG": 7.1
+ },
+ {
+   "Name": "251 -  ZAZKAD  AICHA",
+   "ASD": 5.6,
+   "ADO": 1.5,
+   "SI": 10,
+   "THG": 4.37,
+   "LOGIC": 12.1,
+   "MN": 6.8,
+   "ENG": 14,
+   "AVG": 6.99
+ },
+ {
+   "Name": "74 -  BOUCHAREB  ASMA",
+   "ASD": 10.6,
+   "ADO": 3,
+   "SI": 12.15,
+   "THG": 10.38,
+   "LOGIC": 13.7,
+   "MN": 9.67,
+   "ENG": 13.5,
+   "AVG": 9.89
+ },
+ {
+   "Name": "256 -  ZIANE  Aya",
+   "ASD": 10.1,
+   "ADO": 2.4,
+   "SI": 10.5,
+   "THG": 9.25,
+   "LOGIC": 12.75,
+   "MN": 9.2,
+   "ENG": 13.5,
+   "AVG": 9.06
+ },
+ {
+   "Name": "238 -  TALBI  IKRAM",
+   "ASD": 5.15,
+   "ADO": 4.91,
+   "SI": 11.1,
+   "THG": 12.45,
+   "LOGIC": 12.85,
+   "MN": 7.75,
+   "ENG": 13.5,
+   "AVG": 8.94
+ },
+ {
+   "Name": "70 -  BOUAICHA  NOR ELYAKIN",
+   "ASD": 5.55,
+   "ADO": 3.7,
+   "SI": 11.6,
+   "THG": 8.65,
+   "LOGIC": 11.25,
+   "MN": 7.97,
+   "ENG": 13.5,
+   "AVG": 8.24
+ },
+ {
+   "Name": "222 -  SAIDANI  ABDELBASSET\nABDELDJALIL",
+   "ASD": 8,
+   "ADO": 3.22,
+   "SI": 10.7,
+   "THG": 10.2,
+   "LOGIC": 8.7,
+   "MN": 4.3,
+   "ENG": 13.5,
+   "AVG": 7.85
+ },
+ {
+   "Name": "87 -  BOUSBAA  BOUCHRA",
+   "ASD": 3.8,
+   "ADO": 3.4,
+   "SI": 10.05,
+   "THG": 3.32,
+   "LOGIC": 7.5,
+   "MN": 6.2,
+   "ENG": 13.5,
+   "AVG": 6.21
+ },
+ {
+   "Name": "182 -  MAHROUG  FAHD\nMOHAMMED",
+   "ASD": 10.3,
+   "ADO": 8.4,
+   "SI": 15.75,
+   "THG": 14.15,
+   "LOGIC": 13.25,
+   "MN": 6.57,
+   "ENG": 13,
+   "AVG": 11.52
+ },
+ {
+   "Name": "114 -  DJEGHDALI  AYA MANAR",
+   "ASD": 8.15,
+   "ADO": 5.12,
+   "SI": 15.9,
+   "THG": 12.3,
+   "LOGIC": 11,
+   "MN": 12.95,
+   "ENG": 13,
+   "AVG": 10.82
+ },
+ {
+   "Name": "131 -  HACHADI  DJAMILA NAIMA",
+   "ASD": 7.9,
+   "ADO": 8.3,
+   "SI": 14.1,
+   "THG": 13.15,
+   "LOGIC": 15.1,
+   "MN": 5.4,
+   "ENG": 13,
+   "AVG": 10.7
+ },
+ {
+   "Name": "149 -  HENNI  ZINEB",
+   "ASD": 13.2,
+   "ADO": 6.66,
+   "SI": 10.45,
+   "THG": 9.35,
+   "LOGIC": 12.2,
+   "MN": 10.57,
+   "ENG": 13,
+   "AVG": 10.51
+ },
+ {
+   "Name": "12 -  ALOUANI  MERYEM",
+   "ASD": 10,
+   "ADO": 4.12,
+   "SI": 13.55,
+   "THG": 9.8,
+   "LOGIC": 10.65,
+   "MN": 15.1,
+   "ENG": 13,
+   "AVG": 10.45
+ },
+ {
+   "Name": "67 -  BENZAHIA  SELSABIL",
+   "ASD": 9.25,
+   "ADO": 6.4,
+   "SI": 13.6,
+   "THG": 12.7,
+   "LOGIC": 12.2,
+   "MN": 4.9,
+   "ENG": 13,
+   "AVG": 10.02
+ },
+ {
+   "Name": "77 -  BOUDJEMAA  SMAIL LOUAI",
+   "ASD": 10,
+   "ADO": 4.2,
+   "SI": 14.05,
+   "THG": 10.15,
+   "LOGIC": 12.5,
+   "MN": 8.65,
+   "ENG": 13,
+   "AVG": 10.02
+ },
+ {
+   "Name": "196 -  MEZAACHE  MOHAMMED ESSAID ELHACHEMI",
+   "ASD": 8.25,
+   "ADO": 5.7,
+   "SI": 8.7,
+   "THG": 12.45,
+   "LOGIC": 10.35,
+   "MN": 12.12,
+   "ENG": 13,
+   "AVG": 9.43
+ },
+ {
+   "Name": "220 -  SAADI  CHEKER ALLAH",
+   "ASD": 5.65,
+   "ADO": 5.2,
+   "SI": 10.3,
+   "THG": 10.85,
+   "LOGIC": 14.75,
+   "MN": 10.2,
+   "ENG": 13,
+   "AVG": 9.26
+ },
+ {
+   "Name": "36 -  BELLI  FATIMA ZOHRA",
+   "ASD": 11.7,
+   "ADO": 1.4,
+   "SI": 10.8,
+   "THG": 9,
+   "LOGIC": 9.3,
+   "MN": 8.18,
+   "ENG": 13,
+   "AVG": 8.6
+ },
+ {
+   "Name": "42 -  BEN GHERAB  MOHAMMED",
+   "ASD": 6.3,
+   "ADO": 2.2,
+   "SI": 12.65,
+   "THG": 10.52,
+   "LOGIC": 13.15,
+   "MN": 5.3,
+   "ENG": 13,
+   "AVG": 8.4
+ },
+ {
+   "Name": "158 -  KHABAT  Ikram",
+   "ASD": 3.35,
+   "ADO": 1.5,
+   "SI": 12.5,
+   "THG": 10.66,
+   "LOGIC": 10.45,
+   "MN": 7.38,
+   "ENG": 13,
+   "AVG": 7.63
+ },
+ {
+   "Name": "27 -  BACHIRI  SOUNDOUS",
+   "ASD": 10.5,
+   "ADO": 1,
+   "SI": 12.3,
+   "THG": 0.33,
+   "LOGIC": 8.65,
+   "MN": 2.45,
+   "ENG": 13,
+   "AVG": 6.7
+ },
+ {
+   "Name": "155 -  KAHOUL  MOUSSAAB",
+   "ASD": 3.9,
+   "ADO": 3,
+   "SI": 9.7,
+   "THG": 2.9,
+   "LOGIC": 6.75,
+   "MN": 3.2,
+   "ENG": 13,
+   "AVG": 5.53
+ },
+ {
+   "Name": "250 -  ZAOUI  ANFEL",
+   "ASD": 1.6,
+   "ADO": 0.75,
+   "SI": 10.6,
+   "THG": 2.97,
+   "LOGIC": 2.8,
+   "MN": 3.27,
+   "ENG": 13,
+   "AVG": 4.37
+ },
+ {
+   "Name": "209 -  OUADDAH  ABDELBARI",
+   "ASD": 0.5,
+   "ADO": 3.3,
+   "SI": 2.95,
+   "THG": 2.9,
+   "LOGIC": 1.6,
+   "MN": 1.97,
+   "ENG": 13,
+   "AVG": 2.89
+ },
+ {
+   "Name": "75 -  BOUCHAREB  Salima",
+   "ASD": 5.3,
+   "ADO": 5.1,
+   "SI": 14.7,
+   "THG": 11.9,
+   "LOGIC": 14.3,
+   "MN": 12.8,
+   "ENG": 12.5,
+   "AVG": 10.36
+ },
+ {
+   "Name": "66 -  BENYETTOU  RAYANE",
+   "ASD": 11.55,
+   "ADO": 9.2,
+   "SI": 10.65,
+   "THG": 9.2,
+   "LOGIC": 15.15,
+   "MN": 4.8,
+   "ENG": 12.5,
+   "AVG": 10.32
+ },
+ {
+   "Name": "122 -  GHERABI  AHMED SAMEH",
+   "ASD": 8.1,
+   "ADO": 9.1,
+   "SI": 15.55,
+   "THG": 12.25,
+   "LOGIC": 8.5,
+   "MN": 5.65,
+   "ENG": 12.5,
+   "AVG": 10.22
+ },
+ {
+   "Name": "177 -  MADJADI  AMIRA",
+   "ASD": 10.8,
+   "ADO": 4.4,
+   "SI": 11.2,
+   "THG": 9.63,
+   "LOGIC": 10.1,
+   "MN": 11.41,
+   "ENG": 12.5,
+   "AVG": 9.62
+ },
+ {
+   "Name": "204 -  NASRI  ABDELBAQI",
+   "ASD": 9.05,
+   "ADO": 5.7,
+   "SI": 12.65,
+   "THG": 10.8,
+   "LOGIC": 10.05,
+   "MN": 7.32,
+   "ENG": 12.5,
+   "AVG": 9.44
+ },
+ {
+   "Name": "205 -  NASRI  AMIN",
+   "ASD": 11.8,
+   "ADO": 4,
+   "SI": 12.8,
+   "THG": 8.2,
+   "LOGIC": 7.9,
+   "MN": 7.58,
+   "ENG": 12.5,
+   "AVG": 9.1
+ },
+ {
+   "Name": "38 -  BELOUADAH  AYA",
+   "ASD": 3.65,
+   "ADO": 4.3,
+   "SI": 12.8,
+   "THG": 7.38,
+   "LOGIC": 12.2,
+   "MN": 9,
+   "ENG": 12.5,
+   "AVG": 8.25
+ },
+ {
+   "Name": "151 -  HERIZI  Abdellah amdjed",
+   "ASD": 3.3,
+   "ADO": 2.5,
+   "SI": 9.85,
+   "THG": 7.7,
+   "LOGIC": 8.3,
+   "MN": 2.65,
+   "ENG": 12.5,
+   "AVG": 6.05
+ },
+ {
+   "Name": "29 -  BAKACHE  HANINE",
+   "ASD": 1.15,
+   "ADO": 1.2,
+   "SI": 10,
+   "THG": 0,
+   "LOGIC": 2,
+   "MN": 2.93,
+   "ENG": 12.5,
+   "AVG": 3.72
+ },
+ {
+   "Name": "213 -  OUSSAIDENE\nABDELMALEK MEHDI",
+   "ASD": 1.75,
+   "ADO": 0.2,
+   "SI": 4.55,
+   "THG": 5.6,
+   "LOGIC": 2.85,
+   "MN": 0.8,
+   "ENG": 12.5,
+   "AVG": 3.16
+ },
+ {
+   "Name": "253 -  ZEGHOUGH  YAHIA",
+   "ASD": 0,
+   "ADO": 0.6,
+   "SI": 1.5,
+   "THG": 0,
+   "LOGIC": 1.35,
+   "MN": 0,
+   "ENG": 12.5,
+   "AVG": 1.35
+ },
+ {
+   "Name": "40 -  BEN BACHIR  NOUR EDDINE",
+   "ASD": 11.7,
+   "ADO": 10.91,
+   "SI": 13.65,
+   "THG": 15.35,
+   "LOGIC": 16.35,
+   "MN": 12.55,
+   "ENG": 12,
+   "AVG": 13.08
+ },
+ {
+   "Name": "221 -  SAHRAOUI  NASREDDINE",
+   "ASD": 8.55,
+   "ADO": 6.8,
+   "SI": 13.75,
+   "THG": 13.4,
+   "LOGIC": 17.25,
+   "MN": 14.9,
+   "ENG": 12,
+   "AVG": 11.9
+ },
+ {
+   "Name": "240 -  THAMRI  MAYADA",
+   "ASD": 8.7,
+   "ADO": 5.75,
+   "SI": 12.9,
+   "THG": 11.35,
+   "LOGIC": 13.75,
+   "MN": 10.55,
+   "ENG": 12,
+   "AVG": 10.34
+ },
+ {
+   "Name": "47 -  BENACHOUR  SALIMA",
+   "ASD": 12.7,
+   "ADO": 2.27,
+   "SI": 14.35,
+   "THG": 12.3,
+   "LOGIC": 9.95,
+   "MN": 9.2,
+   "ENG": 12,
+   "AVG": 10.18
+ },
+ {
+   "Name": "187 -  MEKIDECHE  Nedjla",
+   "ASD": 7.7,
+   "ADO": 5.5,
+   "SI": 13.8,
+   "THG": 11,
+   "LOGIC": 13.6,
+   "MN": 8.3,
+   "ENG": 12,
+   "AVG": 9.93
+ },
+ {
+   "Name": "190 -  MELIANI  TAHA EL AMIN",
+   "ASD": 7.6,
+   "ADO": 7.52,
+   "SI": 15.35,
+   "THG": 6.1,
+   "LOGIC": 10,
+   "MN": 7.3,
+   "ENG": 12,
+   "AVG": 9.39
+ },
+ {
+   "Name": "94 -  CHENNAFI  HAMADA\nSOUFIANE",
+   "ASD": 4.55,
+   "ADO": 5.9,
+   "SI": 13,
+   "THG": 11.13,
+   "LOGIC": 10.65,
+   "MN": 5.6,
+   "ENG": 12,
+   "AVG": 8.57
+ },
+ {
+   "Name": "5 -  ACHOUR  MANAR",
+   "ASD": 4.65,
+   "ADO": 6.1,
+   "SI": 11.65,
+   "THG": 10.1,
+   "LOGIC": 13.6,
+   "MN": 3.9,
+   "ENG": 12,
+   "AVG": 8.4
+ },
+ {
+   "Name": "162 -  KOUIDRI  MOHAMED",
+   "ASD": 4.6,
+   "ADO": 6.32,
+   "SI": 11,
+   "THG": 9.9,
+   "LOGIC": 8.7,
+   "MN": 6.3,
+   "ENG": 12,
+   "AVG": 7.97
+ },
+ {
+   "Name": "199 -  MIZI  AMIRA",
+   "ASD": 7.5,
+   "ADO": 3.6,
+   "SI": 11.6,
+   "THG": 7.45,
+   "LOGIC": 9.7,
+   "MN": 6.5,
+   "ENG": 12,
+   "AVG": 7.96
+ },
+ {
+   "Name": "31 -  BALBAL  ABDERRAHMEN\nMOURTADHA",
+   "ASD": 1.05,
+   "ADO": 2,
+   "SI": 2.35,
+   "THG": 3.42,
+   "LOGIC": 4.4,
+   "MN": 2.4,
+   "ENG": 12,
+   "AVG": 3.04
+ },
+ {
+   "Name": "232 -  SENINA  SOUHA",
+   "ASD": 9.1,
+   "ADO": 5.2,
+   "SI": 15.15,
+   "THG": 12.2,
+   "LOGIC": 13.85,
+   "MN": 11.65,
+   "ENG": 11.5,
+   "AVG": 10.95
+ },
+ {
+   "Name": "95 -  CHERFAOUI  FAROUK",
+   "ASD": 7.5,
+   "ADO": 4.8,
+   "SI": 12.75,
+   "THG": 12.3,
+   "LOGIC": 10.4,
+   "MN": 9,
+   "ENG": 11.5,
+   "AVG": 9.38
+ },
+ {
+   "Name": "202 -  MOUSSA  KAWTHER",
+   "ASD": 7.65,
+   "ADO": 5.21,
+   "SI": 10.95,
+   "THG": 12,
+   "LOGIC": 13.1,
+   "MN": 5.1,
+   "ENG": 11.5,
+   "AVG": 8.96
+ },
+ {
+   "Name": "163 -  LACEFAR  SABA",
+   "ASD": 6.15,
+   "ADO": 6.11,
+   "SI": 9.2,
+   "THG": 9.63,
+   "LOGIC": 11.4,
+   "MN": 11.65,
+   "ENG": 11.5,
+   "AVG": 8.83
+ },
+ {
+   "Name": "248 -  YALLAOUI  SALAH EDDINE",
+   "ASD": 8.3,
+   "ADO": 2.4,
+   "SI": 12.2,
+   "THG": 8.8,
+   "LOGIC": 12.85,
+   "MN": 8.6,
+   "ENG": 11.5,
+   "AVG": 8.8
+ },
+ {
+   "Name": "170 -  LEGHOUIL  DOUHA",
+   "ASD": 6.35,
+   "ADO": 3.2,
+   "SI": 10.05,
+   "THG": 10.95,
+   "LOGIC": 12.55,
+   "MN": 8.75,
+   "ENG": 11.5,
+   "AVG": 8.43
+ },
+ {
+   "Name": "154 -  KABOUYA  ELMAHDI",
+   "ASD": 8.1,
+   "ADO": 4.95,
+   "SI": 9.8,
+   "THG": 11.4,
+   "LOGIC": 9.2,
+   "MN": 3.8,
+   "ENG": 11.5,
+   "AVG": 8.06
+ },
+ {
+   "Name": "246 -  YAHIAOUI  SAFIA",
+   "ASD": 7.25,
+   "ADO": 2.6,
+   "SI": 12.1,
+   "THG": 5.1,
+   "LOGIC": 12.15,
+   "MN": 5.55,
+   "ENG": 11.5,
+   "AVG": 7.69
+ },
+ {
+   "Name": "257 -  ZIANI  RYM",
+   "ASD": 8.2,
+   "ADO": 7.2,
+   "SI": 13.85,
+   "THG": 13.55,
+   "LOGIC": 12.75,
+   "MN": 10,
+   "ENG": 11,
+   "AVG": 10.71
+ },
+ {
+   "Name": "79 -  BOUGUERRA  HANA",
+   "ASD": 7.05,
+   "ADO": 6,
+   "SI": 11.4,
+   "THG": 11.3,
+   "LOGIC": 14.9,
+   "MN": 10.4,
+   "ENG": 11,
+   "AVG": 9.85
+ },
+ {
+   "Name": "226 -  SAOUDI  KHAWLA",
+   "ASD": 5.95,
+   "ADO": 5.1,
+   "SI": 14,
+   "THG": 10.15,
+   "LOGIC": 14.3,
+   "MN": 11.05,
+   "ENG": 11,
+   "AVG": 9.83
+ },
+ {
+   "Name": "21 -  ATTOUI  ABIR",
+   "ASD": 6.25,
+   "ADO": 5.7,
+   "SI": 12.05,
+   "THG": 10.35,
+   "LOGIC": 13.65,
+   "MN": 11.25,
+   "ENG": 11,
+   "AVG": 9.6
+ },
+ {
+   "Name": "44 -  BEN HAMIDOUCHE  MANAR",
+   "ASD": 6.45,
+   "ADO": 7.6,
+   "SI": 12.5,
+   "THG": 8.7,
+   "LOGIC": 15.55,
+   "MN": 4.8,
+   "ENG": 11,
+   "AVG": 9.3
+ },
+ {
+   "Name": "15 -  AMMOUR  MERIEM",
+   "ASD": 3.4,
+   "ADO": 3,
+   "SI": 14.3,
+   "THG": 12.63,
+   "LOGIC": 13.65,
+   "MN": 10.5,
+   "ENG": 11,
+   "AVG": 9.17
+ },
+ {
+   "Name": "207 -  NIA  IMANE",
+   "ASD": 5.95,
+   "ADO": 4.5,
+   "SI": 11.3,
+   "THG": 10.1,
+   "LOGIC": 11.65,
+   "MN": 12.05,
+   "ENG": 11,
+   "AVG": 8.99
+ },
+ {
+   "Name": "174 -  LOUKRIZ  FATIMA",
+   "ASD": 6.5,
+   "ADO": 2.8,
+   "SI": 10.9,
+   "THG": 11.7,
+   "LOGIC": 10.2,
+   "MN": 10.45,
+   "ENG": 11,
+   "AVG": 8.52
+ },
+ {
+   "Name": "243 -  TITRAOUI  ABDERRAOUF",
+   "ASD": 5.65,
+   "ADO": 4,
+   "SI": 10.1,
+   "THG": 9.63,
+   "LOGIC": 11,
+   "MN": 7.2,
+   "ENG": 11,
+   "AVG": 7.87
+ },
+ {
+   "Name": "236 -  TAHMI  SEYF EDDINE",
+   "ASD": 3.55,
+   "ADO": 4.4,
+   "SI": 13.2,
+   "THG": 10.42,
+   "LOGIC": 10.85,
+   "MN": 3.85,
+   "ENG": 11,
+   "AVG": 7.8
+ },
+ {
+   "Name": "83 -  BOUMALIA  SOUHEYL",
+   "ASD": 4.45,
+   "ADO": 2.6,
+   "SI": 11.5,
+   "THG": 11.9,
+   "LOGIC": 10.2,
+   "MN": 2.5,
+   "ENG": 11,
+   "AVG": 7.24
+ },
+ {
+   "Name": "224 -  SAILAA  MOHAMMED\nRADHWEN",
+   "ASD": 6.6,
+   "ADO": 4.2,
+   "SI": 7.2,
+   "THG": 7.35,
+   "LOGIC": 7.15,
+   "MN": 5.07,
+   "ENG": 11,
+   "AVG": 6.51
+ },
+ {
+   "Name": "235 -  TABI  NOUR EDDINE\nMOHAMMED",
+   "ASD": 0,
+   "ADO": 2,
+   "SI": 2.85,
+   "THG": 3.7,
+   "LOGIC": 5.85,
+   "MN": 2.93,
+   "ENG": 11,
+   "AVG": 3.16
+ },
+ {
+   "Name": "35 -  BELFAR  DOUAA",
+   "ASD": 14,
+   "ADO": 13.16,
+   "SI": 13.45,
+   "THG": 17.6,
+   "LOGIC": 17.65,
+   "MN": 16.1,
+   "ENG": 10.5,
+   "AVG": 14.69
+ },
+ {
+   "Name": "20 -  ATAMNIA  KHOULOUD",
+   "ASD": 8.25,
+   "ADO": 7.2,
+   "SI": 14.45,
+   "THG": 12.75,
+   "LOGIC": 15.8,
+   "MN": 14.12,
+   "ENG": 10.5,
+   "AVG": 11.6
+ },
+ {
+   "Name": "215 -  RAHMANI  NABIL",
+   "ASD": 7.25,
+   "ADO": 6.4,
+   "SI": 13.55,
+   "THG": 9.8,
+   "LOGIC": 11.15,
+   "MN": 11.9,
+   "ENG": 10.5,
+   "AVG": 9.87
+ },
+ {
+   "Name": "262 -  ZIKEM  RIDHA",
+   "ASD": 8.3,
+   "ADO": 2.6,
+   "SI": 11.45,
+   "THG": 12.2,
+   "LOGIC": 13.9,
+   "MN": 4.53,
+   "ENG": 10.5,
+   "AVG": 8.68
+ },
+ {
+   "Name": "18 -  ASSELI  AYOUB",
+   "ASD": 6.1,
+   "ADO": 3.1,
+   "SI": 11.35,
+   "THG": 8.3,
+   "LOGIC": 12.35,
+   "MN": 8.5,
+   "ENG": 10.5,
+   "AVG": 8.15
+ },
+ {
+   "Name": "161 -  KHODJA  YASSAMINE",
+   "ASD": 4.95,
+   "ADO": 5.1,
+   "SI": 11.9,
+   "THG": 7.9,
+   "LOGIC": 9.4,
+   "MN": 3.7,
+   "ENG": 10.5,
+   "AVG": 7.4
+ },
+ {
+   "Name": "188 -  MEKKI  AMIRA",
+   "ASD": 7.25,
+   "ADO": 8,
+   "SI": 15.45,
+   "THG": 12.15,
+   "LOGIC": 15.8,
+   "MN": 11.75,
+   "ENG": 10,
+   "AVG": 11.35
+ },
+ {
+   "Name": "117 -  DOUDOU   MOHAMMED EL\nAMIN",
+   "ASD": 7.2,
+   "ADO": 10.51,
+   "SI": 12.25,
+   "THG": 10.8,
+   "LOGIC": 12.55,
+   "MN": 10.45,
+   "ENG": 10,
+   "AVG": 10.47
+ },
+ {
+   "Name": "142 -  HAMMOU  OUSSAMA",
+   "ASD": 11.6,
+   "ADO": 5.73,
+   "SI": 12.1,
+   "THG": 12.12,
+   "LOGIC": 10.25,
+   "MN": 11.3,
+   "ENG": 10,
+   "AVG": 10.36
+ },
+ {
+   "Name": "101 -  DEBAB  RANDA",
+   "ASD": 7.45,
+   "ADO": 8.51,
+   "SI": 14.2,
+   "THG": 11.3,
+   "LOGIC": 14,
+   "MN": 7.1,
+   "ENG": 10,
+   "AVG": 10.33
+ },
+ {
+   "Name": "167 -  LAOUEDJ  IBRAHIM\nELKHALIL",
+   "ASD": 10.95,
+   "ADO": 7.15,
+   "SI": 11.2,
+   "THG": 10.8,
+   "LOGIC": 12.95,
+   "MN": 9.15,
+   "ENG": 10,
+   "AVG": 10.23
+ },
+ {
+   "Name": "6 -  ACHOURI  ABDESSAMED",
+   "ASD": 9.35,
+   "ADO": 4.91,
+   "SI": 12.6,
+   "THG": 11.35,
+   "LOGIC": 12.9,
+   "MN": 8.65,
+   "ENG": 10,
+   "AVG": 9.78
+ },
+ {
+   "Name": "125 -  GOUFFI  Nadjah",
+   "ASD": 6.6,
+   "ADO": 1.8,
+   "SI": 11.9,
+   "THG": 14.52,
+   "LOGIC": 11.75,
+   "MN": 12.85,
+   "ENG": 10,
+   "AVG": 9.32
+ },
+ {
+   "Name": "99 -  DAHMANI  WALA EDDINE",
+   "ASD": 7.05,
+   "ADO": 5.9,
+   "SI": 11.4,
+   "THG": 11.7,
+   "LOGIC": 11.6,
+   "MN": 8.7,
+   "ENG": 10,
+   "AVG": 9.19
+ },
+ {
+   "Name": "62 -  BENTALLAH  Dounya amane",
+   "ASD": 11,
+   "ADO": 6.03,
+   "SI": 10.95,
+   "THG": 8.93,
+   "LOGIC": 10.15,
+   "MN": 5.97,
+   "ENG": 10,
+   "AVG": 9
+ },
+ {
+   "Name": "228 -  SASSAOUI  DJAMILA",
+   "ASD": 5.35,
+   "ADO": 2.6,
+   "SI": 12.5,
+   "THG": 11.2,
+   "LOGIC": 14.45,
+   "MN": 8.9,
+   "ENG": 10,
+   "AVG": 8.78
+ },
+ {
+   "Name": "138 -  HALLAB  YAAQOUB",
+   "ASD": 11.4,
+   "ADO": 3.6,
+   "SI": 13.55,
+   "THG": 6.4,
+   "LOGIC": 6.95,
+   "MN": 7.35,
+   "ENG": 10,
+   "AVG": 8.57
+ },
+ {
+   "Name": "140 -  HAMDANI  RANIA",
+   "ASD": 4.05,
+   "ADO": 4.5,
+   "SI": 12.6,
+   "THG": 9.3,
+   "LOGIC": 10,
+   "MN": 12.17,
+   "ENG": 10,
+   "AVG": 8.53
+ },
+ {
+   "Name": "169 -  LATRECHE  AZZEDDINE",
+   "ASD": 10.3,
+   "ADO": 6.2,
+   "SI": 10.05,
+   "THG": 9.6,
+   "LOGIC": 10.15,
+   "MN": 3.3,
+   "ENG": 10,
+   "AVG": 8.49
+ },
+ {
+   "Name": "81 -  BOUKHEDIR  ASMA",
+   "ASD": 6.75,
+   "ADO": 2.5,
+   "SI": 12.6,
+   "THG": 8.6,
+   "LOGIC": 13.45,
+   "MN": 7.62,
+   "ENG": 10,
+   "AVG": 8.43
+ },
+ {
+   "Name": "244 -  TOUNSI  KHAWLA",
+   "ASD": 4.8,
+   "ADO": 5.5,
+   "SI": 11.6,
+   "THG": 8.66,
+   "LOGIC": 6.75,
+   "MN": 13.9,
+   "ENG": 10,
+   "AVG": 8.4
+ },
+ {
+   "Name": "200 -  MOSTAFAOUI  DOUAA\nELBATOUL",
+   "ASD": 10,
+   "ADO": 1.13,
+   "SI": 11,
+   "THG": 8.55,
+   "LOGIC": 10,
+   "MN": 8.9,
+   "ENG": 10,
+   "AVG": 8.21
+ },
+ {
+   "Name": "172 -  LORABI  HIBA AYATALLAH",
+   "ASD": 3.9,
+   "ADO": 4,
+   "SI": 10.7,
+   "THG": 9.25,
+   "LOGIC": 10,
+   "MN": 7.95,
+   "ENG": 10,
+   "AVG": 7.51
+ },
+ {
+   "Name": "23 -  AZZOUZ  WAIL",
+   "ASD": 5.35,
+   "ADO": 5.4,
+   "SI": 4.1,
+   "THG": 5.9,
+   "LOGIC": 7.6,
+   "MN": 3.3,
+   "ENG": 10,
+   "AVG": 5.51
+ },
+ {
+   "Name": "237 -  TAIBI  MOHAMED BAHA\nEDDINE",
+   "ASD": 5.15,
+   "ADO": 1.25,
+   "SI": 7.6,
+   "THG": 4.54,
+   "LOGIC": 10.05,
+   "MN": 3.4,
+   "ENG": 10,
+   "AVG": 5.5
+ },
+ {
+   "Name": "147 -  HAROUZ  DINA",
+   "ASD": 8.3,
+   "ADO": 6.61,
+   "SI": 13.55,
+   "THG": 14.1,
+   "LOGIC": 13.9,
+   "MN": 9.9,
+   "ENG": 9.5,
+   "AVG": 10.67
+ },
+ {
+   "Name": "120 -  FERAHTIA  ISLAM",
+   "ASD": 10.2,
+   "ADO": 8.31,
+   "SI": 9.75,
+   "THG": 12.65,
+   "LOGIC": 11.8,
+   "MN": 12.31,
+   "ENG": 9.5,
+   "AVG": 10.49
+ },
+ {
+   "Name": "245 -  TURQUI  AKRAM",
+   "ASD": 6.9,
+   "ADO": 5,
+   "SI": 11.85,
+   "THG": 8,
+   "LOGIC": 10.25,
+   "MN": 7.77,
+   "ENG": 9.5,
+   "AVG": 8.3
+ },
+ {
+   "Name": "7 -  ACHOURI  NASSIMA",
+   "ASD": 5.65,
+   "ADO": 4.5,
+   "SI": 9.75,
+   "THG": 7.5,
+   "LOGIC": 12.7,
+   "MN": 9.45,
+   "ENG": 9.5,
+   "AVG": 8.03
+ },
+ {
+   "Name": "136 -  HAFIDI  ANES BEN HENNI",
+   "ASD": 6.45,
+   "ADO": 3.82,
+   "SI": 10.6,
+   "THG": 8.77,
+   "LOGIC": 8.3,
+   "MN": 7.05,
+   "ENG": 9.5,
+   "AVG": 7.53
+ },
+ {
+   "Name": "234 -  TABI  IBTISSAM",
+   "ASD": 4.45,
+   "ADO": 3.6,
+   "SI": 11.5,
+   "THG": 11.12,
+   "LOGIC": 7.7,
+   "MN": 5,
+   "ENG": 9.5,
+   "AVG": 7.24
+ },
+ {
+   "Name": "73 -  BOUBAKRI  HAFIDA",
+   "ASD": 7.75,
+   "ADO": 4.8,
+   "SI": 14.25,
+   "THG": 12.1,
+   "LOGIC": 14.45,
+   "MN": 8.6,
+   "ENG": 9,
+   "AVG": 9.98
+ },
+ {
+   "Name": "249 -  ZANAT  CHAHINEZ",
+   "ASD": 7.65,
+   "ADO": 2.1,
+   "SI": 12.8,
+   "THG": 12.55,
+   "LOGIC": 14.65,
+   "MN": 12.45,
+   "ENG": 9,
+   "AVG": 9.75
+ },
+ {
+   "Name": "144 -  HAMOUDI  IKRAM",
+   "ASD": 5.9,
+   "ADO": 6.91,
+   "SI": 13.35,
+   "THG": 7.6,
+   "LOGIC": 11,
+   "MN": 10.75,
+   "ENG": 9,
+   "AVG": 9.14
+ },
+ {
+   "Name": "141 -  HAMDINI  AROUA",
+   "ASD": 6.2,
+   "ADO": 5.7,
+   "SI": 12.6,
+   "THG": 9.95,
+   "LOGIC": 14.25,
+   "MN": 6.15,
+   "ENG": 9,
+   "AVG": 8.95
+ },
+ {
+   "Name": "11 -  AISSANI  ASMA",
+   "ASD": 6.75,
+   "ADO": 4.53,
+   "SI": 11.55,
+   "THG": 8.83,
+   "LOGIC": 11.75,
+   "MN": 7.28,
+   "ENG": 9,
+   "AVG": 8.33
+ },
+ {
+   "Name": "10 -  AIB  ABDERREZAK",
+   "ASD": 3.3,
+   "ADO": 3.8,
+   "SI": 8.8,
+   "THG": 4.2,
+   "LOGIC": 6.55,
+   "MN": 7.25,
+   "ENG": 9,
+   "AVG": 5.79
+ },
+ {
+   "Name": "165 -  LAHKDARI  OUSSAMA\nZIANE",
+   "ASD": 3.75,
+   "ADO": 4.1,
+   "SI": 7.25,
+   "THG": 5.05,
+   "LOGIC": 7.55,
+   "MN": 4.95,
+   "ENG": 9,
+   "AVG": 5.59
+ },
+ {
+   "Name": "93 -  CHENEN  ASMA",
+   "ASD": 8.35,
+   "ADO": 13.8,
+   "SI": 13.05,
+   "THG": 10.4,
+   "LOGIC": 14.55,
+   "MN": 9.7,
+   "ENG": 8.5,
+   "AVG": 11.47
+ },
+ {
+   "Name": "173 -  LOUKRIZ  ABDERRAOUF",
+   "ASD": 10.55,
+   "ADO": 6.85,
+   "SI": 12.8,
+   "THG": 11.9,
+   "LOGIC": 11.8,
+   "MN": 10.28,
+   "ENG": 8.5,
+   "AVG": 10.44
+ },
+ {
+   "Name": "61 -  BENSLIMANE  INASSE",
+   "ASD": 10.1,
+   "ADO": 10,
+   "SI": 10.05,
+   "THG": 11.4,
+   "LOGIC": 11.45,
+   "MN": 10.35,
+   "ENG": 8.5,
+   "AVG": 10.33
+ },
+ {
+   "Name": "229 -  SAYHI  ZINEB",
+   "ASD": 5.65,
+   "ADO": 3.6,
+   "SI": 11.1,
+   "THG": 11,
+   "LOGIC": 15.7,
+   "MN": 11.05,
+   "ENG": 8.5,
+   "AVG": 9.07
+ },
+ {
+   "Name": "89 -  BRIKAT  MARIYA",
+   "ASD": 7.9,
+   "ADO": 5.41,
+   "SI": 14.7,
+   "THG": 13.65,
+   "LOGIC": 16.45,
+   "MN": 13.35,
+   "ENG": 8,
+   "AVG": 11.19
+ },
+ {
+   "Name": "192 -  MERADA  AZAD",
+   "ASD": 6.55,
+   "ADO": 4.1,
+   "SI": 15.05,
+   "THG": 13.7,
+   "LOGIC": 15.7,
+   "MN": 10.1,
+   "ENG": 8,
+   "AVG": 10.26
+ },
+ {
+   "Name": "223 -  SAIDI  ZOUBEYDA",
+   "ASD": 8.6,
+   "ADO": 3,
+   "SI": 13.1,
+   "THG": 9.2,
+   "LOGIC": 13.8,
+   "MN": 14.7,
+   "ENG": 8,
+   "AVG": 9.84
+ },
+ {
+   "Name": "85 -  BOURAHLA  ZOUBIDA",
+   "ASD": 5.35,
+   "ADO": 2.9,
+   "SI": 10.4,
+   "THG": 12,
+   "LOGIC": 12.8,
+   "MN": 6.75,
+   "ENG": 8,
+   "AVG": 7.94
+ },
+ {
+   "Name": "123 -  GHERZOULI  DOUNYA",
+   "ASD": 5.85,
+   "ADO": 4.2,
+   "SI": 11.6,
+   "THG": 6.1,
+   "LOGIC": 8.7,
+   "MN": 6.07,
+   "ENG": 8,
+   "AVG": 7.17
+ },
+ {
+   "Name": "45 -  BEN SEID  KHOULA",
+   "ASD": 7.95,
+   "ADO": 6.4,
+   "SI": 11.65,
+   "THG": 12.3,
+   "LOGIC": 13.75,
+   "MN": 8.2,
+   "ENG": 7.5,
+   "AVG": 9.63
+ },
+ {
+   "Name": "9 -  ADJIMI  AHMED YACINE",
+   "ASD": 7.5,
+   "ADO": 7,
+   "SI": 15.1,
+   "THG": 11.82,
+   "LOGIC": 5,
+   "MN": 8.7,
+   "ENG": 7.5,
+   "AVG": 9.21
+ },
+ {
+   "Name": "189 -  MELIANI  DALAL",
+   "ASD": 6.25,
+   "ADO": 6.6,
+   "SI": 11.2,
+   "THG": 12.3,
+   "LOGIC": 13.5,
+   "MN": 5.95,
+   "ENG": 7.5,
+   "AVG": 8.95
+ },
+ {
+   "Name": "152 -  HERZI  AYA",
+   "ASD": 4.3,
+   "ADO": 2.5,
+   "SI": 9.8,
+   "THG": 9.2,
+   "LOGIC": 10.65,
+   "MN": 14.8,
+   "ENG": 7.5,
+   "AVG": 7.91
+ },
+ {
+   "Name": "239 -  TEBANI  RANIA",
+   "ASD": 4.95,
+   "ADO": 2.2,
+   "SI": 8.5,
+   "THG": 13.4,
+   "LOGIC": 12.2,
+   "MN": 5.55,
+   "ENG": 7.5,
+   "AVG": 7.3
+ },
+ {
+   "Name": "153 -  IKHLEF  MOHAMED LAMIN",
+   "ASD": 4.85,
+   "ADO": 3.4,
+   "SI": 8.9,
+   "THG": 11.9,
+   "LOGIC": 8.2,
+   "MN": 7.02,
+   "ENG": 7.5,
+   "AVG": 7.08
+ },
+ {
+   "Name": "3 -  ABDELKEBIR  MOHAMMED\nABDELWADOUD",
+   "ASD": 3.3,
+   "ADO": 6.63,
+   "SI": 11.15,
+   "THG": 3.55,
+   "LOGIC": 7,
+   "MN": 5.97,
+   "ENG": 7.5,
+   "AVG": 6.49
+ },
+ {
+   "Name": "33 -  BELAADA  MOHAMMED\nELAMIN",
+   "ASD": 7.4,
+   "ADO": 6.4,
+   "SI": 13,
+   "THG": 11.75,
+   "LOGIC": 13.4,
+   "MN": 13.7,
+   "ENG": 7,
+   "AVG": 10.32
+ },
+ {
+   "Name": "104 -  DILMI  FIRDAWS",
+   "ASD": 10,
+   "ADO": 3.55,
+   "SI": 12.6,
+   "THG": 13.15,
+   "LOGIC": 13.95,
+   "MN": 11.7,
+   "ENG": 7,
+   "AVG": 10.19
+ },
+ {
+   "Name": "108 -  DJAIDJA  DOUAA",
+   "ASD": 6.9,
+   "ADO": 4.7,
+   "SI": 10.5,
+   "THG": 10.2,
+   "LOGIC": 13,
+   "MN": 12.8,
+   "ENG": 7,
+   "AVG": 9.08
+ },
+ {
+   "Name": "41 -  BEN CHIKH  NOR EL HOUDA",
+   "ASD": 7.45,
+   "ADO": 5,
+   "SI": 12.75,
+   "THG": 11.05,
+   "LOGIC": 10.1,
+   "MN": 7.77,
+   "ENG": 7,
+   "AVG": 8.78
+ },
+ {
+   "Name": "168 -  LASSELAT  SOUNDOUS",
+   "ASD": 6.7,
+   "ADO": 3.6,
+   "SI": 11.4,
+   "THG": 8.3,
+   "LOGIC": 13.85,
+   "MN": 6.3,
+   "ENG": 7,
+   "AVG": 8.06
+ },
+ {
+   "Name": "181 -  MAHDI  IMANE",
+   "ASD": 3.55,
+   "ADO": 2.3,
+   "SI": 13.7,
+   "THG": 10.7,
+   "LOGIC": 10.65,
+   "MN": 7.07,
+   "ENG": 7,
+   "AVG": 7.66
+ },
+ {
+   "Name": "178 -  MAHAMDI  ABIR",
+   "ASD": 4.35,
+   "ADO": 4.2,
+   "SI": 11.85,
+   "THG": 3.1,
+   "LOGIC": 10.6,
+   "MN": 6.3,
+   "ENG": 7,
+   "AVG": 6.76
+ },
+ {
+   "Name": "135 -  HADJI  BADRA",
+   "ASD": 5.65,
+   "ADO": 4.61,
+   "SI": 13.1,
+   "THG": 12.2,
+   "LOGIC": 12.05,
+   "MN": 9.9,
+   "ENG": 6.5,
+   "AVG": 9.06
+ },
+ {
+   "Name": "43 -  BEN GUENNA  MOHAMMED",
+   "ASD": 4.35,
+   "ADO": 2.5,
+   "SI": 10.15,
+   "THG": 7.73,
+   "LOGIC": 7.3,
+   "MN": 8.4,
+   "ENG": 6.5,
+   "AVG": 6.52
+ },
+ {
+   "Name": "28 -  BADOUCHE  QOSSEY",
+   "ASD": 3.2,
+   "ADO": 4.9,
+   "SI": 6.5,
+   "THG": 2.9,
+   "LOGIC": 4.8,
+   "MN": 3.93,
+   "ENG": 6.5,
+   "AVG": 4.6
+ },
+ {
+   "Name": "76 -  BOUDJELLAL  CHEYMA",
+   "ASD": 8.8,
+   "ADO": 8.03,
+   "SI": 16.1,
+   "THG": 12.1,
+   "LOGIC": 16.9,
+   "MN": 17.5,
+   "ENG": 6,
+   "AVG": 12.36
+ },
+ {
+   "Name": "166 -  LALDJI  MOHAMED BACHIR",
+   "ASD": 10.55,
+   "ADO": 9.4,
+   "SI": 12,
+   "THG": 11.7,
+   "LOGIC": 13.3,
+   "MN": 14.5,
+   "ENG": 6,
+   "AVG": 11.31
+ },
+ {
+   "Name": "58 -  BENLATRECHE  Mariya",
+   "ASD": 8.8,
+   "ADO": 6.65,
+   "SI": 12.7,
+   "THG": 11.4,
+   "LOGIC": 13.6,
+   "MN": 10.2,
+   "ENG": 6,
+   "AVG": 10.06
+ },
+ {
+   "Name": "69 -  BLIZAK  AMINA",
+   "ASD": 6.45,
+   "ADO": 5.6,
+   "SI": 13.8,
+   "THG": 11.15,
+   "LOGIC": 13,
+   "MN": 12.75,
+   "ENG": 6,
+   "AVG": 9.84
+ },
+ {
+   "Name": "139 -  HAMDACHE  HALIMA",
+   "ASD": 6.55,
+   "ADO": 7.9,
+   "SI": 12.6,
+   "THG": 8.4,
+   "LOGIC": 15.25,
+   "MN": 8.05,
+   "ENG": 6,
+   "AVG": 9.41
+ },
+ {
+   "Name": "186 -  MEKIDECHE\nABDERRAHMEN",
+   "ASD": 6.95,
+   "ADO": 2.6,
+   "SI": 10.9,
+   "THG": 10.8,
+   "LOGIC": 11.1,
+   "MN": 4.85,
+   "ENG": 6,
+   "AVG": 7.56
+ },
+ {
+   "Name": "17 -  AOUINA  IBTISSAM",
+   "ASD": 8,
+   "ADO": 8.8,
+   "SI": 12.5,
+   "THG": 11.4,
+   "LOGIC": 12.3,
+   "MN": 10.25,
+   "ENG": 5.5,
+   "AVG": 10.08
+ },
+ {
+   "Name": "171 -  LOGRADA  BACHRA",
+   "ASD": 7.45,
+   "ADO": 5.7,
+   "SI": 9.8,
+   "THG": 12,
+   "LOGIC": 15.7,
+   "MN": 13.9,
+   "ENG": 5.5,
+   "AVG": 9.85
+ },
+ {
+   "Name": "148 -  HASNAOUI  SAMAH",
+   "ASD": 6.5,
+   "ADO": 3.35,
+   "SI": 14.6,
+   "THG": 11.3,
+   "LOGIC": 13,
+   "MN": 12.8,
+   "ENG": 5.5,
+   "AVG": 9.57
+ },
+ {
+   "Name": "39 -  BEN AMARA  FATIMA\nZOHRA",
+   "ASD": 8.7,
+   "ADO": 3.2,
+   "SI": 12.7,
+   "THG": 10.95,
+   "LOGIC": 14.35,
+   "MN": 10.8,
+   "ENG": 5.5,
+   "AVG": 9.47
+ },
+ {
+   "Name": "98 -  CHOUIH  YASSINE",
+   "ASD": 7.2,
+   "ADO": 6,
+   "SI": 11.4,
+   "THG": 10.9,
+   "LOGIC": 10.7,
+   "MN": 4.9,
+   "ENG": 5.5,
+   "AVG": 8.27
+ },
+ {
+   "Name": "109 -  DJAIDJA  ISLAM",
+   "ASD": 5.85,
+   "ADO": 8.1,
+   "SI": 11.8,
+   "THG": 9.45,
+   "LOGIC": 12.35,
+   "MN": 6.3,
+   "ENG": 5,
+   "AVG": 8.66
+ },
+ {
+   "Name": "112 -  DJALAB  MOHAMED\nFOUAD",
+   "ASD": 5.7,
+   "ADO": 3.8,
+   "SI": 11.35,
+   "THG": 9.1,
+   "LOGIC": 11.25,
+   "MN": 12.07,
+   "ENG": 5,
+   "AVG": 8.27
+ },
+ {
+   "Name": "132 -  HACHEMI  FATMA ZOHRA",
+   "ASD": 8.1,
+   "ADO": 2.4,
+   "SI": 10.8,
+   "THG": 10.77,
+   "LOGIC": 12.2,
+   "MN": 8.75,
+   "ENG": 5,
+   "AVG": 8.27
+ },
+ {
+   "Name": "16 -  AOUINA  GHOUFRAN\nZOUBIDA",
+   "ASD": 4.6,
+   "ADO": 2.9,
+   "SI": 11.8,
+   "THG": 10.9,
+   "LOGIC": 10.55,
+   "MN": 8.1,
+   "ENG": 5,
+   "AVG": 7.63
+ },
+ {
+   "Name": "80 -  BOUGUERRA  ILYAS",
+   "ASD": 2.9,
+   "ADO": 2.55,
+   "SI": 9.2,
+   "THG": 3.91,
+   "LOGIC": 9,
+   "MN": 3,
+   "ENG": 5,
+   "AVG": 5.05
+ },
+ {
+   "Name": "241 -  THARAFI  SOHAIB",
+   "ASD": 7.55,
+   "ADO": 7.6,
+   "SI": 14.7,
+   "THG": 9.65,
+   "LOGIC": 13.05,
+   "MN": 10.2,
+   "ENG": 4.5,
+   "AVG": 9.99
+ },
+ {
+   "Name": "197 -  MEZRAG  MOUSSA",
+   "ASD": 7.05,
+   "ADO": 6.5,
+   "SI": 10.3,
+   "THG": 12.05,
+   "LOGIC": 15.1,
+   "MN": 10.9,
+   "ENG": 4.5,
+   "AVG": 9.51
+ },
+ {
+   "Name": "13 -  AMARA  ABLA",
+   "ASD": 6.35,
+   "ADO": 6.9,
+   "SI": 11.95,
+   "THG": 12.1,
+   "LOGIC": 14.8,
+   "MN": 6.4,
+   "ENG": 4.5,
+   "AVG": 9.17
+ },
+ {
+   "Name": "255 -  ZEMIH  BRAHIM",
+   "ASD": 6.2,
+   "ADO": 4.9,
+   "SI": 12.1,
+   "THG": 12.4,
+   "LOGIC": 9,
+   "MN": 11.13,
+   "ENG": 4.5,
+   "AVG": 8.7
+ },
+ {
+   "Name": "119 -  FALI  MOUFIDA",
+   "ASD": 7.2,
+   "ADO": 3.4,
+   "SI": 11.6,
+   "THG": 10.7,
+   "LOGIC": 12.4,
+   "MN": 8.95,
+   "ENG": 4.5,
+   "AVG": 8.45
+ },
+ {
+   "Name": "164 -  LADJAL  SAFIA",
+   "ASD": 6.45,
+   "ADO": 3,
+   "SI": 11.1,
+   "THG": 10.63,
+   "LOGIC": 15.25,
+   "MN": 6.8,
+   "ENG": 4.5,
+   "AVG": 8.22
+ },
+ {
+   "Name": "116 -  DJOUMAGH  KHADIDJA",
+   "ASD": 6.2,
+   "ADO": 3.32,
+   "SI": 12.6,
+   "THG": 12,
+   "LOGIC": 11.5,
+   "MN": 4.9,
+   "ENG": 4.5,
+   "AVG": 7.98
+ },
+ {
+   "Name": "230 -  SEBAA  YACINE",
+   "ASD": 6.2,
+   "ADO": 6.91,
+   "SI": 8.95,
+   "THG": 9.65,
+   "LOGIC": 8.9,
+   "MN": 6.57,
+   "ENG": 4.5,
+   "AVG": 7.56
+ },
+ {
+   "Name": "106 -  DJAIDJA  AHMED",
+   "ASD": 4.9,
+   "ADO": 4.6,
+   "SI": 9.15,
+   "THG": 7.8,
+   "LOGIC": 7.55,
+   "MN": 4.4,
+   "ENG": 4.5,
+   "AVG": 6.25
+ },
+ {
+   "Name": "100 -  DARAF  ABDENNACER",
+   "ASD": 8.9,
+   "ADO": 11.4,
+   "SI": 14.3,
+   "THG": 13.15,
+   "LOGIC": 16.8,
+   "MN": 9.9,
+   "ENG": 4,
+   "AVG": 11.72
+ },
+ {
+   "Name": "46 -  BENABDERRAHMANE  Saleh\nayoub",
+   "ASD": 10.6,
+   "ADO": 6.8,
+   "SI": 11.8,
+   "THG": 12.15,
+   "LOGIC": 15.85,
+   "MN": 15.35,
+   "ENG": 4,
+   "AVG": 11.14
+ },
+ {
+   "Name": "227 -  SAOUDI  THEBAT",
+   "ASD": 7.55,
+   "ADO": 4.4,
+   "SI": 13.7,
+   "THG": 11.8,
+   "LOGIC": 15,
+   "MN": 10.67,
+   "ENG": 4,
+   "AVG": 9.75
+ },
+ {
+   "Name": "26 -  BACHAR  Ikram",
+   "ASD": 7.95,
+   "ADO": 5.7,
+   "SI": 9.8,
+   "THG": 10.05,
+   "LOGIC": 11.75,
+   "MN": 8.25,
+   "ENG": 4,
+   "AVG": 8.41
+ },
+ {
+   "Name": "203 -  NAOUI  DOUAA",
+   "ASD": 5.5,
+   "ADO": 3.2,
+   "SI": 12.7,
+   "THG": 9.6,
+   "LOGIC": 14.85,
+   "MN": 6.4,
+   "ENG": 4,
+   "AVG": 8.12
+ },
+ {
+   "Name": "185 -  MEBARKI  RADOUANE",
+   "ASD": 6.65,
+   "ADO": 4.6,
+   "SI": 10.65,
+   "THG": 8.13,
+   "LOGIC": 8.65,
+   "MN": 5.7,
+   "ENG": 4,
+   "AVG": 7.17
+ },
+ {
+   "Name": "19 -  ASSELI  CHOUAIB",
+   "ASD": 5.05,
+   "ADO": 4.7,
+   "SI": 6.3,
+   "THG": 7.42,
+   "LOGIC": 8.7,
+   "MN": 6.37,
+   "ENG": 4,
+   "AVG": 6.07
+ },
+ {
+   "Name": "201 -  MOUISSAT  KHAOULA",
+   "ASD": 5.05,
+   "ADO": 2.2,
+   "SI": 8.5,
+   "THG": 6.23,
+   "LOGIC": 7.25,
+   "MN": 4.4,
+   "ENG": 4,
+   "AVG": 5.44
+ },
+ {
+   "Name": "211 -  OULD LAZAZI\nMOHAMMED HOCINE",
+   "ASD": 5.5,
+   "ADO": 4.3,
+   "SI": 4.2,
+   "THG": 5.65,
+   "LOGIC": 9,
+   "MN": 3,
+   "ENG": 4,
+   "AVG": 5.08
+ },
+ {
+   "Name": "258 -  ZIAZIA  Wail mounib",
+   "ASD": 7,
+   "ADO": 5.1,
+   "SI": 14.2,
+   "THG": 12.35,
+   "LOGIC": 8.35,
+   "MN": 12.75,
+   "ENG": 3.5,
+   "AVG": 9.33
+ },
+ {
+   "Name": "110 -  DJAIDJA  MAHA",
+   "ASD": 5.7,
+   "ADO": 6.2,
+   "SI": 12.35,
+   "THG": 12.3,
+   "LOGIC": 15.95,
+   "MN": 7.45,
+   "ENG": 3.5,
+   "AVG": 9.23
+ },
+ {
+   "Name": "128 -  GUENDOUZ  ZIYAD",
+   "ASD": 5.1,
+   "ADO": 5,
+   "SI": 11.25,
+   "THG": 8,
+   "LOGIC": 16.1,
+   "MN": 7.1,
+   "ENG": 3.5,
+   "AVG": 8.12
+ },
+ {
+   "Name": "37 -  BELOUADAH  AHMED\nAMEUR",
+   "ASD": 6.55,
+   "ADO": 4.3,
+   "SI": 10.5,
+   "THG": 8.5,
+   "LOGIC": 10.35,
+   "MN": 6.15,
+   "ENG": 3.5,
+   "AVG": 7.35
+ },
+ {
+   "Name": "53 -  BENGANA  YOUNES",
+   "ASD": 5.65,
+   "ADO": 3.6,
+   "SI": 6.3,
+   "THG": 8.87,
+   "LOGIC": 10.1,
+   "MN": 3.3,
+   "ENG": 3.5,
+   "AVG": 5.92
+ },
+ {
+   "Name": "193 -  MESSAOUDI\nABDELSAMAD",
+   "ASD": 4.9,
+   "ADO": 1.8,
+   "SI": 7.9,
+   "THG": 6.93,
+   "LOGIC": 8.8,
+   "MN": 7.2,
+   "ENG": 3.5,
+   "AVG": 5.82
+ },
+ {
+   "Name": "113 -  DJALAB  YOUCEF",
+   "ASD": 5,
+   "ADO": 4.2,
+   "SI": 11.55,
+   "THG": 7.7,
+   "LOGIC": 9.05,
+   "MN": 6.37,
+   "ENG": 3,
+   "AVG": 6.97
+ },
+ {
+   "Name": "57 -  BENKOUIDER  ABDELHAKIM",
+   "ASD": 2.8,
+   "ADO": 1.34,
+   "SI": 7.7,
+   "THG": 3.92,
+   "LOGIC": 6.2,
+   "MN": 1.4,
+   "ENG": 3,
+   "AVG": 3.85
+ },
+ {
+   "Name": "175 -  LOUKRIZ  OM EL KHAIR",
+   "ASD": 10.1,
+   "ADO": 4.1,
+   "SI": 11.7,
+   "THG": 7.55,
+   "LOGIC": 9.75,
+   "MN": 8.3,
+   "ENG": 2.5,
+   "AVG": 8.21
+ },
+ {
+   "Name": "111 -  DJALAB  MESSAOUD",
+   "ASD": 8,
+   "ADO": 7.2,
+   "SI": 11.7,
+   "THG": 14.65,
+   "LOGIC": 12.4,
+   "MN": 10.5,
+   "ENG": 2,
+   "AVG": 9.86
+ },
+ {
+   "Name": "107 -  DJAIDJA  Abdelmouhimen\nomar",
+   "ASD": 10.2,
+   "ADO": 5.7,
+   "SI": 11.2,
+   "THG": 9,
+   "LOGIC": 13.4,
+   "MN": 4.95,
+   "ENG": 2,
+   "AVG": 8.63
+ },
+ {
+   "Name": "233 -  SERRAI  DOUNYA",
+   "ASD": 3,
+   "ADO": 2.4,
+   "SI": 11.4,
+   "THG": 9,
+   "LOGIC": 11.7,
+   "MN": 10.56,
+   "ENG": 2,
+   "AVG": 7.18
+ },
+ {
+   "Name": "124 -  GOUARI  TARIQ",
+   "ASD": 1.4,
+   "ADO": 1.05,
+   "SI": 10,
+   "THG": 1.47,
+   "LOGIC": 4.3,
+   "MN": 1.1,
+   "ENG": 1.5,
+   "AVG": 3.29
+ },
+ {
+   "Name": "134 -  HADERBACHE  Nor el imane",
+   "ASD": 1.85,
+   "ADO": 2.6,
+   "SI": 10.5,
+   "THG": 9.7,
+   "LOGIC": 8.15,
+   "MN": 4.83,
+   "ENG": 1,
+   "AVG": 5.7
+ },
+ {
+   "Name": "127 -  GUELMINE  FAIZ\nABDESSALAME",
+   "ASD": 3.9,
+   "ADO": 3.2,
+   "SI": 7.4,
+   "THG": 9.3,
+   "LOGIC": 8.05,
+   "MN": 4.7,
+   "ENG": 1,
+   "AVG": 5.54
+ },
+ {
+   "Name": "121 -  FERHATI  AZZEDDINE",
+   "ASD": 7.25,
+   "ADO": 7.1,
+   "SI": 13.35,
+   "THG": 12.85,
+   "LOGIC": 14.7,
+   "MN": 4.2,
+   "ENG": 0,
+   "AVG": 9.16
+ },
+ {
+   "Name": "118 -  DOUIBI  DALAL",
+   "ASD": 2.85,
+   "ADO": 4.8,
+   "SI": 11.55,
+   "THG": 13.2,
+   "LOGIC": 12.9,
+   "MN": 10.27,
+   "ENG": 0,
+   "AVG": 8.15
+ },
+ {
+   "Name": "252 -  ZEGHBA  LOUBNA",
+   "ASD": 6.7,
+   "ADO": 3.5,
+   "SI": 10.85,
+   "THG": 10.3,
+   "LOGIC": 10.25,
+   "MN": 8.7,
+   "ENG": 0,
+   "AVG": 7.6
+ },
+ {
+   "Name": "84 -  BOUNAB  OUAIL",
+   "ASD": 5.65,
+   "ADO": 3.8,
+   "SI": 9.4,
+   "THG": 6.25,
+   "LOGIC": 7.45,
+   "MN": 3.8,
+   "ENG": 0,
+   "AVG": 5.73
+ },
+ {
+   "Name": "145 -  HAMZA  MOHAMMED EL\nAMIN",
+   "ASD": 6.35,
+   "ADO": 4.2,
+   "SI": 1.8,
+   "THG": 7.8,
+   "LOGIC": 6.3,
+   "MN": 5.73,
+   "ENG": 0,
+   "AVG": 4.8
+ },
+ {
+   "Name": "4 -  ABDELLI  MOHAMMED\nAMINE",
+   "ASD": 0.9,
+   "ADO": 1.6,
+   "SI": 1.7,
+   "THG": 0,
+   "LOGIC": 3.4,
+   "MN": 1.6,
+   "ENG": 0,
+   "AVG": 1.41
+ },
+ {
+   "Name": "214 -  RABHI  AHMED AZEDDINE",
+   "ASD": 0,
+   "ADO": 0.4,
+   "SI": 4.1,
+   "THG": 0,
+   "LOGIC": 0,
+   "MN": 0,
+   "ENG": 0,
+   "AVG": 0.84
+ },
+ {
+   "Name": "130 -  GUETTOUCHE  ASSALA\nHIYAM",
+   "ASD": 0,
+   "ADO": 0.5,
+   "SI": 2.2,
+   "THG": 2,
+   "LOGIC": 0,
+   "MN": 0,
+   "ENG": 0,
+   "AVG": 0.76
+ },
+ {
+   "Name": "50 -  BENALIA  LOUBNA",
+   "ASD": 1,
+   "ADO": 0,
+   "SI": 0,
+   "THG": 0.28,
+   "LOGIC": 0,
+   "MN": 1.33,
+   "ENG": 0,
+   "AVG": 0.39
+ },
+ {
+   "Name": "225 -  SALMI  QWIDER\nABDELMOUMIN",
+   "ASD": 1.4,
+   "ADO": 0,
+   "SI": 0,
+   "THG": 0,
+   "LOGIC": 0,
+   "MN": 0,
+   "ENG": 0,
+   "AVG": 0.26
+ },
+ {
+   "Name": "8 -  ADEL  MOHAMMED AMINE",
+   "ASD": 0,
+   "ADO": 0,
+   "SI": 1.2,
+   "THG": 0,
+   "LOGIC": 0,
+   "MN": 0,
+   "ENG": 0,
+   "AVG": 0.23
+ },
+ {
+   "Name": "105 -  DJAHEL  Akram",
+   "ASD": 0,
+   "ADO": 0,
+   "SI": 0,
+   "THG": 0,
+   "LOGIC": 0,
+   "MN": 0,
+   "ENG": 0,
+   "AVG": 0
+ }
+
+    ];
+  
+   
+    let currentSort = null;
+    let originalData = [...studentData];
+    let filteredData = [...studentData];
+    const headers = Object.keys(studentData[0]);
+
+    function createButtons() {
+      const controls = document.getElementById("controls");
+      headers.slice(1).forEach(header => {
+        const btn = document.createElement("button");
+        btn.textContent = header;
+        btn.dataset.sorted = "false";
+        btn.onclick = () => toggleSort(header, btn);
+        if (header === "AVG") btn.classList.add("avg-button");
+        controls.appendChild(btn);
+      });
+    }
+
+    function toggleSort(column, btn) {
+      if (currentSort === column && btn.dataset.sorted === "true") {
+        btn.dataset.sorted = "false";
+        currentSort = null;
+        displayTable(filteredData);
+      } else {
+        document.querySelectorAll("button").forEach(b => b.dataset.sorted = "false");
+        btn.dataset.sorted = "true";
+        currentSort = column;
+        const sorted = [...filteredData].sort((a, b) => b[column] - a[column]);
+        displayTable(sorted, column);
+      }
+    }
+
+    function displayTable(data, sortedColumn = null) {
+      const table = document.getElementById("dataTable");
+      const noResultsDiv = document.getElementById("noResults");
+      table.innerHTML = "";
+
+      if (data.length === 0) {
+        noResultsDiv.style.display = "block";
+        return;
+      } else {
+        noResultsDiv.style.display = "none";
+      }
+
+      // Create table header
+      const thead = document.createElement("thead");
+      const headerRow = document.createElement("tr");
+      headerRow.appendChild(document.createElement("th"));
+      headers.forEach(header => {
+        const th = document.createElement("th");
+        th.textContent = header;
+        headerRow.appendChild(th);
+      });
+      thead.appendChild(headerRow);
+      table.appendChild(thead);
+
+      const tbody = document.createElement("tbody");
+
+      // Calculate averages for students with AVG > 10
+      const above10Students = data.filter(student => student.AVG >= 10);
+      if (above10Students.length > 0) {
+        const above10AvgRow = document.createElement("tr");
+        above10AvgRow.className = "average-above-10-row";
+        const above10Label = document.createElement("td");
+        above10Label.textContent = `AVG (Students >10,Nbr of student=${above10Students.length})`;
+        above10AvgRow.appendChild(above10Label);
+
+        headers.forEach(header => {
+          const td = document.createElement("td");
+          if (header === "Name") {
+            td.textContent = "";
+          } else {
+            const values = above10Students.map(d => d[header]);
+            const average = (values.reduce((acc, val) => acc + val, 0) / values.length).toFixed(2);
+            td.textContent = average;
+          }
+          above10AvgRow.appendChild(td);
+        });
+        tbody.appendChild(above10AvgRow);
+      }
+
+      // Calculate overall averages
+      const averageRow = document.createElement("tr");
+      averageRow.className = "average-row";
+      const avgLabel = document.createElement("td");
+      avgLabel.textContent = `AVG (All, Nbr of student =${data.length})`;
+      averageRow.appendChild(avgLabel);
+
+      headers.forEach(header => {
+        const td = document.createElement("td");
+        if (header === "Name") {
+          td.textContent = "";
+        } else {
+          const values = data.map(d => d[header]);
+          const average = (values.reduce((acc, val) => acc + val, 0) / values.length).toFixed(2);
+          td.textContent = average;
+        }
+        averageRow.appendChild(td);
+      });
+      tbody.appendChild(averageRow);
+
+      // Add student data rows
+      let maxValue = sortedColumn ? Math.max(...data.map(d => d[sortedColumn])) : null;
+
+      data.forEach((row, index) => {
+        const tr = document.createElement("tr");
+        const rankTd = document.createElement("td");
+        rankTd.textContent = sortedColumn ? index + 1 : "-";
+        rankTd.className = sortedColumn ? "sorted-rank" : "";
+        tr.appendChild(rankTd);
+
+        headers.forEach(header => {
+          const td = document.createElement("td");
+          td.textContent = row[header];
+          if (sortedColumn && header === sortedColumn) {
+            td.classList.add("highlight-column");
+            if (row[header] === maxValue) {
+              td.classList.add("highest-score");
+            }
+          }
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+
+      table.appendChild(tbody);
+    }
+
+    function handleSearch() {
+      const input = document.getElementById("searchInput").value.toLowerCase();
+      filteredData = originalData.filter(student => 
+        student.Name.toLowerCase().includes(input)
+      );
+      displayTable(filteredData);
+    }
+
+    createButtons();
+    displayTable(studentData);
+  </script>
+</body>
+</html>

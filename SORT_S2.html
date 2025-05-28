@@ -1,0 +1,3374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Student Grades Viewer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&family=Montserrat:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+      .navigation-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 2rem;
+      gap: 1rem;
+    }
+    
+    .nav-button {
+      padding: 12px 24px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: var(--border-radius);
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: var(--box-shadow);
+      font-family: 'Montserrat', sans-serif;
+      text-decoration: none;
+      text-align: center;
+    }
+    
+    .nav-button:hover {
+      background-color: var(--secondary);
+      transform: translateY(-2px);
+    }
+    
+    .nav-button.active {
+      background-color: var(--accent);
+      font-weight: 600;
+    }
+    :root {
+      --primary: #4361ee;
+      --secondary: #3f37c9;
+      --accent: #f72585;
+      --light: #f8f9fa;
+      --dark: #212529;
+      --success: #4cc9f0;
+      --warning: #f8961e;
+      --danger: #ef233c;
+      --border-radius: 12px;
+      --box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+      --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+    
+    body {
+      font-family: 'Poppins', sans-serif;
+      padding: 2rem;
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      color: var(--dark);
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    h2 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 2.5rem;
+      margin-bottom: 1.5rem;
+      text-align: center;
+      color: var(--secondary);
+      position: relative;
+      display: inline-block;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    h2::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      border-radius: 2px;
+    }
+
+    .search-container {
+      text-align: center;
+      margin-bottom: 2rem;
+      position: relative;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      max-width: 500px;
+      padding: 12px 20px;
+      font-size: 1rem;
+      border: none;
+      border-radius: var(--border-radius);
+      background-color: white;
+      box-shadow: var(--box-shadow);
+      transition: var(--transition);
+      border: 2px solid transparent;
+    }
+
+    input[type="text"]:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+    }
+
+    input[type="text"]::placeholder {
+      color: #adb5bd;
+    }
+
+    .button-container {
+      text-align: center;
+      margin-bottom: 2rem;
+      background: white;
+      padding: 1.5rem;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+    }
+
+    .sort-label {
+      display: block;
+      margin-bottom: 1rem;
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: var(--secondary);
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    button {
+      margin: 0.5rem;
+      padding: 10px 20px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 50px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      font-family: 'Montserrat', sans-serif;
+      letter-spacing: 0.5px;
+    }
+
+    button.avg-button {
+      background: var(--accent) !important;
+    }
+
+    button:hover {
+      background-color: var(--secondary);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 2rem;
+      background-color: white;
+      box-shadow: var(--box-shadow);
+      border-radius: var(--border-radius);
+      overflow: hidden;
+      transition: var(--transition);
+    }
+
+    th, td {
+      padding: 15px;
+      text-align: center;
+      border-bottom: 1px solid #e9ecef;
+    }
+
+    th {
+      background-color: var(--primary);
+      color: white;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.85rem;
+      letter-spacing: 1px;
+      position: sticky;
+      top: 0;
+    }
+
+    tr:hover {
+      background-color: #f8f9fa;
+    }
+
+    td.sorted-rank {
+      font-weight: bold;
+      color: var(--danger);
+      background-color: rgba(239, 35, 60, 0.1);
+    }
+
+    td.highlight-column {
+      background-color: rgba(76, 201, 240, 0.1) !important;
+      font-weight: 600;
+    }
+
+    td.highest-score {
+      background-color: rgba(239, 35, 60, 0.1) !important;
+      color: var(--danger);
+      font-weight: bold;
+      position: relative;
+    }
+
+    td.highest-score::after {
+      content: '★';
+      position: absolute;
+      right: 5px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--danger);
+      font-size: 0.8rem;
+    }
+
+    .average-row td {
+      background-color: #f1f8ff;
+      font-weight: bold;
+      border-bottom: 2px solid var(--primary);
+      color: var(--secondary);
+      font-size: 1.05rem;
+    }
+
+    .average-above-10-row td {
+      background-color: #e6f7e6;
+      font-weight: bold;
+      border-bottom: 2px solid #4CAF50;
+      color: #2E7D32;
+      font-size: 1.05rem;
+    }
+
+    .average-row td:first-child,
+    .average-above-10-row td:first-child {
+      background-color: var(--primary);
+      color: white;
+      font-weight: 600;
+    }
+
+    .average-above-10-row td:first-child {
+      background-color: #4CAF50;
+    }
+
+    .no-results {
+      text-align: center;
+      font-size: 1.2rem;
+      color: #6c757d;
+      margin-top: 2rem;
+      font-weight: 500;
+      padding: 2rem;
+      background: white;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      body {
+        padding: 1rem;
+      }
+      
+      h2 {
+        font-size: 1.8rem;
+      }
+      
+      .button-container {
+        padding: 1rem;
+      }
+      
+      button {
+        margin: 0.3rem;
+        padding: 8px 15px;
+        font-size: 0.9rem;
+      }
+      
+      th, td {
+        padding: 10px 5px;
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+     
+    <div class="navigation-container">
+      <a href="SORT_S1.html" class="nav-button">Semester 1</a>
+      <a href="SORT_S2.html" class="nav-button active">Semester 2</a>
+      <a href="deliberation_Global.html" class="nav-button">Global Average</a>
+    </div>
+    <h2>📊 Student Grades Dashboard</h2>
+    <div class="search-container">
+      <input type="text" id="searchInput" placeholder="🔍 Search student name..." oninput="handleSearch()" />
+    </div>
+    <div class="button-container" id="controls">
+      <span class="sort-label">Sort by Module</span>
+    </div>
+    <table id="dataTable"></table>
+    <div id="noResults" class="no-results" style="display: none;">
+      <p>No matching students found</p>
+      <p style="font-size: 3rem;">😕</p>
+    </div>
+  </div>
+
+  <script>
+    const studentData =[
+ {
+   "Name": "1 -  ABDELAZIZ  SOULEYMAN",
+   "SE": 0,
+   "THL": 0,
+   "BDD": 0,
+   "Réseaux": 0.6,
+   "DEV": 0,
+   "POO": 0,
+   "ENG": 14,
+   "AVG_S2": 0.99
+ },
+ {
+   "Name": "2 -  ABDELHAFID  OMAYMA",
+   "SE": 6.35,
+   "THL": 9.05,
+   "BDD": 7.7,
+   "Réseaux": 10.08,
+   "DEV": 11.5,
+   "POO": 13.35,
+   "ENG": 16,
+   "AVG_S2": 9.76
+ },
+ {
+   "Name": "3 -  ABDELKEBIR  MOHAMMED\nABDELWADOUD",
+   "SE": 2.35,
+   "THL": 4.15,
+   "BDD": 3.85,
+   "Réseaux": 4.15,
+   "DEV": 1.8,
+   "POO": 6.8,
+   "ENG": 11,
+   "AVG_S2": 4.22
+ },
+ {
+   "Name": "4 -  ABDELLI  MOHAMMED\nAMINE",
+   "SE": 0,
+   "THL": 0.55,
+   "BDD": 0.8,
+   "Réseaux": 1.1,
+   "DEV": 0,
+   "POO": 2.8,
+   "ENG": 0,
+   "AVG_S2": 0.78
+ },
+ {
+   "Name": "5 -  ACHOUR  MANAR",
+   "SE": 4.6,
+   "THL": 6.4,
+   "BDD": 10.6,
+   "Réseaux": 8.13,
+   "DEV": 8.3,
+   "POO": 13.95,
+   "ENG": 15,
+   "AVG_S2": 8.9
+ },
+ {
+   "Name": "6 -  ACHOURI  ABDESSAMED",
+   "SE": 10.65,
+   "THL": 11.15,
+   "BDD": 13.65,
+   "Réseaux": 9.8,
+   "DEV": 11.3,
+   "POO": 15.9,
+   "ENG": 12.5,
+   "AVG_S2": 11.97
+ },
+ {
+   "Name": "7 -  ACHOURI  NASSIMA",
+   "SE": 10.15,
+   "THL": 7.4,
+   "BDD": 8.85,
+   "Réseaux": 6.97,
+   "DEV": 10.9,
+   "POO": 14.15,
+   "ENG": 19.5,
+   "AVG_S2": 10.15
+ },
+ {
+   "Name": "8 -  ADEL  MOHAMMED AMINE",
+   "SE": 0,
+   "THL": 0,
+   "BDD": 0,
+   "Réseaux": 0,
+   "DEV": 0,
+   "POO": 0,
+   "ENG": 0,
+   "AVG_S2": 0
+ },
+ {
+   "Name": "9 -  ADJIMI  AHMED YACINE",
+   "SE": 5.2,
+   "THL": 7.15,
+   "BDD": 13.05,
+   "Réseaux": 9.9,
+   "DEV": 10.4,
+   "POO": 15.3,
+   "ENG": 10.5,
+   "AVG_S2": 10.04
+ },
+ {
+   "Name": "10 -  AIB  ABDERREZAK",
+   "SE": 3.3,
+   "THL": 4.1,
+   "BDD": 8.15,
+   "Réseaux": 4.48,
+   "DEV": 5.2,
+   "POO": 6.2,
+   "ENG": 13,
+   "AVG_S2": 5.74
+ },
+ {
+   "Name": "11 -  AISSANI  ASMA",
+   "SE": 1,
+   "THL": 5.2,
+   "BDD": 5.05,
+   "Réseaux": 4.4,
+   "DEV": 4.9,
+   "POO": 8.8,
+   "ENG": 12,
+   "AVG_S2": 5.07
+ },
+ {
+   "Name": "12 -  ALOUANI  MERYEM",
+   "SE": 1.4,
+   "THL": 7.05,
+   "BDD": 8.15,
+   "Réseaux": 6.55,
+   "DEV": 10,
+   "POO": 13.6,
+   "ENG": 11,
+   "AVG_S2": 7.54
+ },
+ {
+   "Name": "13 -  AMARA  ABLA",
+   "SE": 3.7,
+   "THL": 6.9,
+   "BDD": 11.15,
+   "Réseaux": 6.5,
+   "DEV": 7.3,
+   "POO": 14,
+   "ENG": 4.5,
+   "AVG_S2": 7.81
+ },
+ {
+   "Name": "14 -  AMEUR  AKRAM\nABDERRAHIM",
+   "SE": 0.3,
+   "THL": 3.3,
+   "BDD": 11.9,
+   "Réseaux": 3.07,
+   "DEV": 3.3,
+   "POO": 6.2,
+   "ENG": 17,
+   "AVG_S2": 5.53
+ },
+ {
+   "Name": "15 -  AMMOUR  MERIEM",
+   "SE": 3.35,
+   "THL": 12.4,
+   "BDD": 11.05,
+   "Réseaux": 7.3,
+   "DEV": 11.35,
+   "POO": 13.45,
+   "ENG": 14.5,
+   "AVG_S2": 9.63
+ },
+ {
+   "Name": "16 -  AOUINA  GHOUFRAN\nZOUBIDA",
+   "SE": 6.28,
+   "THL": 7.85,
+   "BDD": 8.1,
+   "Réseaux": 7.3,
+   "DEV": 8.8,
+   "POO": 11.6,
+   "ENG": 12.5,
+   "AVG_S2": 8.38
+ },
+ {
+   "Name": "17 -  AOUINA  IBTISSAM",
+   "SE": 5.46,
+   "THL": 8.85,
+   "BDD": 13.45,
+   "Réseaux": 12.75,
+   "DEV": 10,
+   "POO": 15.1,
+   "ENG": 10,
+   "AVG_S2": 10.81
+ },
+ {
+   "Name": "18 -  ASSELI  AYOUB",
+   "SE": 4.55,
+   "THL": 4.7,
+   "BDD": 6.75,
+   "Réseaux": 6.33,
+   "DEV": 12.3,
+   "POO": 9.6,
+   "ENG": 17,
+   "AVG_S2": 7.69
+ },
+ {
+   "Name": "19 -  ASSELI  CHOUAIB",
+   "SE": 2.2,
+   "THL": 3.45,
+   "BDD": 10.01,
+   "Réseaux": 8.2,
+   "DEV": 3,
+   "POO": 10.2,
+   "ENG": 11,
+   "AVG_S2": 6.6
+ },
+ {
+   "Name": "20 -  ATAMNIA  KHOULOUD",
+   "SE": 9.05,
+   "THL": 10.2,
+   "BDD": 8.45,
+   "Réseaux": 10.83,
+   "DEV": 13.4,
+   "POO": 15.85,
+   "ENG": 17.5,
+   "AVG_S2": 11.34
+ },
+ {
+   "Name": "21 -  ATTOUI  ABIR",
+   "SE": 7.93,
+   "THL": 8.8,
+   "BDD": 8.25,
+   "Réseaux": 7.97,
+   "DEV": 10,
+   "POO": 15.2,
+   "ENG": 10,
+   "AVG_S2": 9.4
+ },
+ {
+   "Name": "22 -  AZZOUZ  AYOUB",
+   "SE": 3.15,
+   "THL": 10.8,
+   "BDD": 10.2,
+   "Réseaux": 4.4,
+   "DEV": 9.8,
+   "POO": 10.2,
+   "ENG": 16,
+   "AVG_S2": 8.18
+ },
+ {
+   "Name": "23 -  AZZOUZ  WAIL",
+   "SE": 1.8,
+   "THL": 1.7,
+   "BDD": 6.1,
+   "Réseaux": 4.6,
+   "DEV": 5.4,
+   "POO": 3.2,
+   "ENG": 8.5,
+   "AVG_S2": 4.16
+ },
+ {
+   "Name": "24 -  BAALI\nMOHAMMEDABDELMOUMIN",
+   "SE": 0.95,
+   "THL": 3.2,
+   "BDD": 6.9,
+   "Réseaux": 10.65,
+   "DEV": 2.8,
+   "POO": 10.4,
+   "ENG": 18.5,
+   "AVG_S2": 6.68
+ },
+ {
+   "Name": "25 -  BAALI  Mohamed cheikhe",
+   "SE": 0,
+   "THL": 11,
+   "BDD": 0,
+   "Réseaux": 0,
+   "DEV": 14.4,
+   "POO": 13.2,
+   "ENG": 14,
+   "AVG_S2": 5.7
+ },
+ {
+   "Name": "26 -  BACHAR  Ikram",
+   "SE": 5.2,
+   "THL": 7.5,
+   "BDD": 3.65,
+   "Réseaux": 11.33,
+   "DEV": 6.4,
+   "POO": 12.7,
+   "ENG": 11,
+   "AVG_S2": 7.8
+ },
+ {
+   "Name": "27 -  BACHIRI  SOUNDOUS",
+   "SE": 0,
+   "THL": 2.7,
+   "BDD": 4.6,
+   "Réseaux": 2.5,
+   "DEV": 11.5,
+   "POO": 10.8,
+   "ENG": 13,
+   "AVG_S2": 5.27
+ },
+ {
+   "Name": "28 -  BADOUCHE  QOSSEY",
+   "SE": 2.6,
+   "THL": 6.65,
+   "BDD": 11.05,
+   "Réseaux": 4.05,
+   "DEV": 4.6,
+   "POO": 9.4,
+   "ENG": 10.5,
+   "AVG_S2": 6.56
+ },
+ {
+   "Name": "29 -  BAKACHE  HANINE",
+   "SE": 1.65,
+   "THL": 0,
+   "BDD": 2.45,
+   "Réseaux": 0,
+   "DEV": 9.9,
+   "POO": 14.4,
+   "ENG": 13,
+   "AVG_S2": 4.62
+ },
+ {
+   "Name": "30 -  BAKRI  MOHAMMED EL\nBACHIR",
+   "SE": 11.5,
+   "THL": 5.3,
+   "BDD": 13.75,
+   "Réseaux": 14.5,
+   "DEV": 11.6,
+   "POO": 13.6,
+   "ENG": 18,
+   "AVG_S2": 12.39
+ },
+ {
+   "Name": "31 -  BALBAL  ABDERRAHMEN\nMOURTADHA",
+   "SE": 0,
+   "THL": 0,
+   "BDD": 0,
+   "Réseaux": 0,
+   "DEV": 0,
+   "POO": 0,
+   "ENG": 0,
+   "AVG_S2": 0
+ },
+ {
+   "Name": "32 -  BARKATI  AYA",
+   "SE": 5,
+   "THL": 13.2,
+   "BDD": 10.1,
+   "Réseaux": 12.03,
+   "DEV": 12.4,
+   "POO": 18.65,
+   "ENG": 13,
+   "AVG_S2": 11.43
+ },
+ {
+   "Name": "33 -  BELAADA  MOHAMMED\nELAMIN",
+   "SE": 9.95,
+   "THL": 6.3,
+   "BDD": 7,
+   "Réseaux": 12.35,
+   "DEV": 10.3,
+   "POO": 13.2,
+   "ENG": 13,
+   "AVG_S2": 10.03
+ },
+ {
+   "Name": "34 -  BELBEY  NASSIM AMINE",
+   "SE": 8.43,
+   "THL": 8.25,
+   "BDD": 12.75,
+   "Réseaux": 12.05,
+   "DEV": 13.6,
+   "POO": 15.5,
+   "ENG": 16,
+   "AVG_S2": 11.9
+ },
+ {
+   "Name": "35 -  BELFAR  DOUAA",
+   "SE": 12.9,
+   "THL": 11.6,
+   "BDD": 17.6,
+   "Réseaux": 16.3,
+   "DEV": 15.1,
+   "POO": 16.8,
+   "ENG": 15.5,
+   "AVG_S2": 15.18
+ },
+ {
+   "Name": "36 -  BELLI  FATIMA ZOHRA",
+   "SE": 9.85,
+   "THL": 6.4,
+   "BDD": 11.35,
+   "Réseaux": 10.53,
+   "DEV": 9.3,
+   "POO": 11.1,
+   "ENG": 14,
+   "AVG_S2": 10.17
+ },
+ {
+   "Name": "37 -  BELOUADAH  AHMED\nAMEUR",
+   "SE": 4.25,
+   "THL": 5.45,
+   "BDD": 5.75,
+   "Réseaux": 8.9,
+   "DEV": 7.5,
+   "POO": 10.4,
+   "ENG": 12.5,
+   "AVG_S2": 7.25
+ },
+ {
+   "Name": "38 -  BELOUADAH  AYA",
+   "SE": 3.65,
+   "THL": 4.8,
+   "BDD": 11.5,
+   "Réseaux": 5.3,
+   "DEV": 12.3,
+   "POO": 15.9,
+   "ENG": 17,
+   "AVG_S2": 9.02
+ },
+ {
+   "Name": "39 -  BEN AMARA  FATIMA\nZOHRA",
+   "SE": 9.23,
+   "THL": 5.05,
+   "BDD": 12.4,
+   "Réseaux": 12.37,
+   "DEV": 11.9,
+   "POO": 18.7,
+   "ENG": 18,
+   "AVG_S2": 11.96
+ },
+ {
+   "Name": "40 -  BEN BACHIR  NOUR EDDINE",
+   "SE": 8.15,
+   "THL": 9.55,
+   "BDD": 14,
+   "Réseaux": 9.4,
+   "DEV": 12.6,
+   "POO": 16.25,
+   "ENG": 13.5,
+   "AVG_S2": 11.56
+ },
+ {
+   "Name": "41 -  BEN CHIKH  NOR EL HOUDA",
+   "SE": 11.8,
+   "THL": 9.9,
+   "BDD": 15.25,
+   "Réseaux": 10.23,
+   "DEV": 11.9,
+   "POO": 12.8,
+   "ENG": 7.5,
+   "AVG_S2": 11.78
+ },
+ {
+   "Name": "42 -  BEN GHERAB  MOHAMMED",
+   "SE": 2.55,
+   "THL": 4.55,
+   "BDD": 4.6,
+   "Réseaux": 4.8,
+   "DEV": 6.1,
+   "POO": 4.8,
+   "ENG": 12,
+   "AVG_S2": 4.92
+ },
+ {
+   "Name": "43 -  BEN GUENNA  MOHAMMED",
+   "SE": 4,
+   "THL": 6.8,
+   "BDD": 7.8,
+   "Réseaux": 8.1,
+   "DEV": 5.2,
+   "POO": 11.5,
+   "ENG": 11,
+   "AVG_S2": 7.36
+ },
+ {
+   "Name": "44 -  BEN HAMIDOUCHE  MANAR",
+   "SE": 8.05,
+   "THL": 12.4,
+   "BDD": 15.75,
+   "Réseaux": 13.1,
+   "DEV": 14.7,
+   "POO": 18.9,
+   "ENG": 17.5,
+   "AVG_S2": 13.76
+ },
+ {
+   "Name": "45 -  BEN SEID  KHOULA",
+   "SE": 8.25,
+   "THL": 10.3,
+   "BDD": 13.35,
+   "Réseaux": 10.6,
+   "DEV": 9.2,
+   "POO": 16.4,
+   "ENG": 12,
+   "AVG_S2": 11.28
+ },
+ {
+   "Name": "46 -  BENABDERRAHMANE  Saleh\nayoub",
+   "SE": 5.6,
+   "THL": 9.35,
+   "BDD": 13.5,
+   "Réseaux": 10.35,
+   "DEV": 14.95,
+   "POO": 15.45,
+   "ENG": 13,
+   "AVG_S2": 11.31
+ },
+ {
+   "Name": "47 -  BENACHOUR  SALIMA",
+   "SE": 3.75,
+   "THL": 8.7,
+   "BDD": 14.1,
+   "Réseaux": 12.55,
+   "DEV": 11.2,
+   "POO": 15.85,
+   "ENG": 13,
+   "AVG_S2": 10.98
+ },
+ {
+   "Name": "48 -  BENAISSI  MAHAMMED SAID",
+   "SE": 6.1,
+   "THL": 5.65,
+   "BDD": 15.35,
+   "Réseaux": 9.9,
+   "DEV": 15.8,
+   "POO": 14.4,
+   "ENG": 17.5,
+   "AVG_S2": 11.46
+ },
+ {
+   "Name": "49 -  BENAISSOU  MOHAMMED\nIDRIS",
+   "SE": 6.03,
+   "THL": 7.85,
+   "BDD": 6.3,
+   "Réseaux": 7,
+   "DEV": 8.1,
+   "POO": 9.05,
+   "ENG": 17,
+   "AVG_S2": 7.81
+ },
+ {
+   "Name": "50 -  BENALIA  LOUBNA",
+   "SE": 0.15,
+   "THL": 10.05,
+   "BDD": 0.95,
+   "Réseaux": 2.3,
+   "DEV": 10.6,
+   "POO": 11.2,
+   "ENG": 10,
+   "AVG_S2": 5.25
+ },
+ {
+   "Name": "51 -  BENBOUDINA  TARIK",
+   "SE": 11.45,
+   "THL": 8.35,
+   "BDD": 15,
+   "Réseaux": 12.3,
+   "DEV": 8.8,
+   "POO": 11.6,
+   "ENG": 14,
+   "AVG_S2": 11.73
+ },
+ {
+   "Name": "52 -  BENDJEDDOU  MOHAMMED\nIMADEDDINE",
+   "SE": 2.1,
+   "THL": 7.4,
+   "BDD": 10.05,
+   "Réseaux": 3,
+   "DEV": 10,
+   "POO": 11.6,
+   "ENG": 10,
+   "AVG_S2": 7.09
+ },
+ {
+   "Name": "53 -  BENGANA  YOUNES",
+   "SE": 3.27,
+   "THL": 4.15,
+   "BDD": 4.2,
+   "Réseaux": 4.07,
+   "DEV": 8.55,
+   "POO": 8.1,
+   "ENG": 9,
+   "AVG_S2": 5.33
+ },
+ {
+   "Name": "54 -  BENGASMIA  ANES",
+   "SE": 5.71,
+   "THL": 3.95,
+   "BDD": 12.95,
+   "Réseaux": 12.5,
+   "DEV": 14.1,
+   "POO": 18.7,
+   "ENG": 16.5,
+   "AVG_S2": 11.47
+ },
+ {
+   "Name": "55 -  BENGUESMIA  LOUBNA",
+   "SE": 7.85,
+   "THL": 11.05,
+   "BDD": 13.3,
+   "Réseaux": 11.65,
+   "DEV": 14,
+   "POO": 18.9,
+   "ENG": 16,
+   "AVG_S2": 12.65
+ },
+ {
+   "Name": "56 -  BENHALIMA  Mohammed",
+   "SE": 5.01,
+   "THL": 5.6,
+   "BDD": 15.35,
+   "Réseaux": 9.83,
+   "DEV": 15.5,
+   "POO": 15.75,
+   "ENG": 14.5,
+   "AVG_S2": 11.18
+ },
+ {
+   "Name": "57 -  BENKOUIDER  ABDELHAKIM",
+   "SE": 0,
+   "THL": 0,
+   "BDD": 0,
+   "Réseaux": 0,
+   "DEV": 0,
+   "POO": 0,
+   "ENG": 0,
+   "AVG_S2": 0
+ },
+ {
+   "Name": "58 -  BENLATRECHE  Mariya",
+   "SE": 5.5,
+   "THL": 10.1,
+   "BDD": 10.01,
+   "Réseaux": 8.85,
+   "DEV": 12.6,
+   "POO": 12.8,
+   "ENG": 13,
+   "AVG_S2": 9.82
+ },
+ {
+   "Name": "59 -  BENMOHAMMED  FIRAS\nELHADJ",
+   "SE": 6.3,
+   "THL": 8.95,
+   "BDD": 11.1,
+   "Réseaux": 11.03,
+   "DEV": 6,
+   "POO": 12.55,
+   "ENG": 20,
+   "AVG_S2": 10.02
+ },
+ {
+   "Name": "60 -  BENRABAH  YACINE",
+   "SE": 0.6,
+   "THL": 5.8,
+   "BDD": 10.75,
+   "Réseaux": 12.3,
+   "DEV": 4.5,
+   "POO": 7.9,
+   "ENG": 15.5,
+   "AVG_S2": 7.68
+ },
+ {
+   "Name": "61 -  BENSLIMANE  INASSE",
+   "SE": 4.1,
+   "THL": 6.75,
+   "BDD": 10,
+   "Réseaux": 6.15,
+   "DEV": 11,
+   "POO": 13.8,
+   "ENG": 13,
+   "AVG_S2": 8.56
+ },
+ {
+   "Name": "62 -  BENTALLAH  Dounya amane",
+   "SE": 1.5,
+   "THL": 4.2,
+   "BDD": 11.3,
+   "Réseaux": 7.45,
+   "DEV": 11.5,
+   "POO": 8.2,
+   "ENG": 15,
+   "AVG_S2": 7.72
+ },
+ {
+   "Name": "63 -  BENTATA  ABDELLATIF",
+   "SE": 3.1,
+   "THL": 8.55,
+   "BDD": 8.5,
+   "Réseaux": 3.6,
+   "DEV": 5.4,
+   "POO": 5.2,
+   "ENG": 19,
+   "AVG_S2": 6.43
+ },
+ {
+   "Name": "64 -  BENTOUMI  Aden aicha",
+   "SE": 10.7,
+   "THL": 12.45,
+   "BDD": 10.55,
+   "Réseaux": 14.45,
+   "DEV": 13.2,
+   "POO": 16.8,
+   "ENG": 18.5,
+   "AVG_S2": 13.16
+ },
+ {
+   "Name": "65 -  BENYAHIA  Firdaws amina",
+   "SE": 2.95,
+   "THL": 9.25,
+   "BDD": 11.05,
+   "Réseaux": 8.75,
+   "DEV": 6.4,
+   "POO": 10.8,
+   "ENG": 19,
+   "AVG_S2": 8.76
+ },
+ {
+   "Name": "66 -  BENYETTOU  RAYANE",
+   "SE": 5.9,
+   "THL": 11.6,
+   "BDD": 12,
+   "Réseaux": 8.75,
+   "DEV": 11,
+   "POO": 12.8,
+   "ENG": 15,
+   "AVG_S2": 10.36
+ },
+ {
+   "Name": "67 -  BENZAHIA  SELSABIL",
+   "SE": 11.51,
+   "THL": 7.3,
+   "BDD": 10,
+   "Réseaux": 10.6,
+   "DEV": 12.7,
+   "POO": 17.3,
+   "ENG": 17.5,
+   "AVG_S2": 11.78
+ },
+ {
+   "Name": "68 -  BETKA  LOUBNA",
+   "SE": 1.4,
+   "THL": 3.95,
+   "BDD": 10.6,
+   "Réseaux": 12.1,
+   "DEV": 14.3,
+   "POO": 12.4,
+   "ENG": 12,
+   "AVG_S2": 9.1
+ },
+ {
+   "Name": "69 -  BLIZAK  AMINA",
+   "SE": 3.45,
+   "THL": 10.7,
+   "BDD": 13.45,
+   "Réseaux": 7.9,
+   "DEV": 12.8,
+   "POO": 15.2,
+   "ENG": 16,
+   "AVG_S2": 10.49
+ },
+ {
+   "Name": "70 -  BOUAICHA  NOR ELYAKIN",
+   "SE": 4.35,
+   "THL": 8.4,
+   "BDD": 15.4,
+   "Réseaux": 8.55,
+   "DEV": 7.6,
+   "POO": 16.25,
+   "ENG": 12,
+   "AVG_S2": 10.09
+ },
+ {
+   "Name": "71 -  BOUALI  ANOUAR BOUCHRA",
+   "SE": 6.04,
+   "THL": 9.05,
+   "BDD": 6.15,
+   "Réseaux": 10.87,
+   "DEV": 9.6,
+   "POO": 10.9,
+   "ENG": 11,
+   "AVG_S2": 8.7
+ },
+ {
+   "Name": "72 -  BOUBAKRI  AYA",
+   "SE": 2.7,
+   "THL": 12.2,
+   "BDD": 10.05,
+   "Réseaux": 10.2,
+   "DEV": 14.2,
+   "POO": 13.55,
+   "ENG": 13,
+   "AVG_S2": 10.11
+ },
+ {
+   "Name": "73 -  BOUBAKRI  HAFIDA",
+   "SE": 2.75,
+   "THL": 5.45,
+   "BDD": 6.15,
+   "Réseaux": 7.1,
+   "DEV": 6.6,
+   "POO": 14.4,
+   "ENG": 9.5,
+   "AVG_S2": 6.9
+ },
+ {
+   "Name": "74 -  BOUCHAREB  ASMA",
+   "SE": 2.75,
+   "THL": 7.8,
+   "BDD": 10,
+   "Réseaux": 10.65,
+   "DEV": 11.2,
+   "POO": 10.6,
+   "ENG": 13,
+   "AVG_S2": 8.9
+ },
+ {
+   "Name": "75 -  BOUCHAREB  Salima",
+   "SE": 4.49,
+   "THL": 8.5,
+   "BDD": 5.95,
+   "Réseaux": 8.67,
+   "DEV": 9.6,
+   "POO": 12.55,
+   "ENG": 12,
+   "AVG_S2": 8.16
+ },
+ {
+   "Name": "76 -  BOUDJELLAL  CHEYMA",
+   "SE": 10.8,
+   "THL": 8.05,
+   "BDD": 10.9,
+   "Réseaux": 10.8,
+   "DEV": 13.2,
+   "POO": 18.4,
+   "ENG": 13.5,
+   "AVG_S2": 11.89
+ },
+ {
+   "Name": "77 -  BOUDJEMAA  SMAIL LOUAI",
+   "SE": 7.31,
+   "THL": 10.25,
+   "BDD": 10.1,
+   "Réseaux": 7.13,
+   "DEV": 10.6,
+   "POO": 10.55,
+   "ENG": 11,
+   "AVG_S2": 9.22
+ },
+ {
+   "Name": "78 -  BOUDJOUDI  Maria ines",
+   "SE": 4.65,
+   "THL": 9.35,
+   "BDD": 12.85,
+   "Réseaux": 9.4,
+   "DEV": 10.8,
+   "POO": 9.3,
+   "ENG": 18,
+   "AVG_S2": 9.85
+ },
+ {
+   "Name": "79 -  BOUGUERRA  HANA",
+   "SE": 6.35,
+   "THL": 8.7,
+   "BDD": 13.25,
+   "Réseaux": 12.4,
+   "DEV": 11.9,
+   "POO": 14.85,
+   "ENG": 14.5,
+   "AVG_S2": 11.34
+ },
+ {
+   "Name": "80 -  BOUGUERRA  ILYAS",
+   "SE": 4.65,
+   "THL": 5.3,
+   "BDD": 12.35,
+   "Réseaux": 3.65,
+   "DEV": 7.95,
+   "POO": 8,
+   "ENG": 12,
+   "AVG_S2": 7.28
+ },
+ {
+   "Name": "81 -  BOUKHEDIR  ASMA",
+   "SE": 3.35,
+   "THL": 5.6,
+   "BDD": 14.35,
+   "Réseaux": 10.3,
+   "DEV": 8.1,
+   "POO": 12.75,
+   "ENG": 11,
+   "AVG_S2": 9.25
+ },
+ {
+   "Name": "82 -  BOUKHENISSA  YASSINE",
+   "SE": 4.95,
+   "THL": 8.45,
+   "BDD": 10.3,
+   "Réseaux": 5.4,
+   "DEV": 11.75,
+   "POO": 11,
+   "ENG": 16,
+   "AVG_S2": 8.77
+ },
+ {
+   "Name": "83 -  BOUMALIA  SOUHEYL",
+   "SE": 9.5,
+   "THL": 6.35,
+   "BDD": 13.1,
+   "Réseaux": 14.05,
+   "DEV": 13.9,
+   "POO": 16.4,
+   "ENG": 12.5,
+   "AVG_S2": 12.24
+ },
+ {
+   "Name": "84 -  BOUNAB  OUAIL",
+   "SE": 10.3,
+   "THL": 7.05,
+   "BDD": 11.75,
+   "Réseaux": 5.63,
+   "DEV": 11.4,
+   "POO": 16.65,
+   "ENG": 11.5,
+   "AVG_S2": 10.3
+ },
+ {
+   "Name": "85 -  BOURAHLA  ZOUBIDA",
+   "SE": 2.65,
+   "THL": 4.1,
+   "BDD": 4.9,
+   "Réseaux": 4.8,
+   "DEV": 3.5,
+   "POO": 3.7,
+   "ENG": 5,
+   "AVG_S2": 4.04
+ },
+ {
+   "Name": "86 -  BOUSBA  ILYAS AYOUB",
+   "SE": 4.18,
+   "THL": 9.5,
+   "BDD": 6.6,
+   "Réseaux": 13.7,
+   "DEV": 9.2,
+   "POO": 10.85,
+   "ENG": 20,
+   "AVG_S2": 9.54
+ },
+ {
+   "Name": "87 -  BOUSBAA  BOUCHRA",
+   "SE": 0.15,
+   "THL": 4,
+   "BDD": 10.4,
+   "Réseaux": 6.55,
+   "DEV": 10.45,
+   "POO": 9.8,
+   "ENG": 13,
+   "AVG_S2": 7.05
+ },
+ {
+   "Name": "88 -  BOUSLAH  YOUSRA",
+   "SE": 5.65,
+   "THL": 8.8,
+   "BDD": 15.65,
+   "Réseaux": 12.4,
+   "DEV": 15.75,
+   "POO": 19.6,
+   "ENG": 20,
+   "AVG_S2": 13.09
+ },
+ {
+   "Name": "89 -  BRIKAT  MARIYA",
+   "SE": 5.35,
+   "THL": 6.85,
+   "BDD": 10.01,
+   "Réseaux": 10.55,
+   "DEV": 10.3,
+   "POO": 14,
+   "ENG": 14,
+   "AVG_S2": 9.63
+ },
+ {
+   "Name": "90 -  CHEBABHI  SAID ELMOATAZ",
+   "SE": 7.2,
+   "THL": 9.4,
+   "BDD": 11.4,
+   "Réseaux": 9.4,
+   "DEV": 8.1,
+   "POO": 15.2,
+   "ENG": 16,
+   "AVG_S2": 10.34
+ },
+ {
+   "Name": "91 -  CHEBILI  NADJOUA",
+   "SE": 10.55,
+   "THL": 10.35,
+   "BDD": 14.9,
+   "Réseaux": 12.65,
+   "DEV": 9.7,
+   "POO": 12.9,
+   "ENG": 13.5,
+   "AVG_S2": 12.11
+ },
+ {
+   "Name": "92 -  CHELALI  WALID",
+   "SE": 8.3,
+   "THL": 7.2,
+   "BDD": 14.2,
+   "Réseaux": 6.65,
+   "DEV": 8.7,
+   "POO": 15.1,
+   "ENG": 16.5,
+   "AVG_S2": 10.37
+ },
+ {
+   "Name": "93 -  CHENEN  ASMA",
+   "SE": 9.3,
+   "THL": 4.7,
+   "BDD": 12.1,
+   "Réseaux": 10.8,
+   "DEV": 10.7,
+   "POO": 13.4,
+   "ENG": 14.5,
+   "AVG_S2": 10.54
+ },
+ {
+   "Name": "94 -  CHENNAFI  HAMADA\nSOUFIANE",
+   "SE": 0.2,
+   "THL": 3.4,
+   "BDD": 10.5,
+   "Réseaux": 8.1,
+   "DEV": 4.3,
+   "POO": 10.7,
+   "ENG": 10.5,
+   "AVG_S2": 6.48
+ },
+ {
+   "Name": "95 -  CHERFAOUI  FAROUK",
+   "SE": 6,
+   "THL": 9.45,
+   "BDD": 10.05,
+   "Réseaux": 8.25,
+   "DEV": 8.6,
+   "POO": 12.4,
+   "ENG": 10,
+   "AVG_S2": 8.99
+ },
+ {
+   "Name": "96 -  CHERIFI  AHMED CHARIF",
+   "SE": 1.9,
+   "THL": 4.6,
+   "BDD": 8.5,
+   "Réseaux": 6.6,
+   "DEV": 10.55,
+   "POO": 8.8,
+   "ENG": 15.5,
+   "AVG_S2": 7.15
+ },
+ {
+   "Name": "97 -  CHIKOUCHE  KHAWLA",
+   "SE": 5.55,
+   "THL": 10.1,
+   "BDD": 11.8,
+   "Réseaux": 9.35,
+   "DEV": 10.25,
+   "POO": 12,
+   "ENG": 16,
+   "AVG_S2": 10.05
+ },
+ {
+   "Name": "98 -  CHOUIH  YASSINE",
+   "SE": 7.07,
+   "THL": 8.85,
+   "BDD": 11.2,
+   "Réseaux": 6.97,
+   "DEV": 13.15,
+   "POO": 17.1,
+   "ENG": 13.5,
+   "AVG_S2": 10.47
+ },
+ {
+   "Name": "99 -  DAHMANI  WALA EDDINE",
+   "SE": 1.67,
+   "THL": 11.2,
+   "BDD": 7.75,
+   "Réseaux": 5.17,
+   "DEV": 9.65,
+   "POO": 11.05,
+   "ENG": 11,
+   "AVG_S2": 7.41
+ },
+ {
+   "Name": "100 -  DARAF  ABDENNACER",
+   "SE": 4.65,
+   "THL": 13.75,
+   "BDD": 15.4,
+   "Réseaux": 13.15,
+   "DEV": 12,
+   "POO": 17.3,
+   "ENG": 10.5,
+   "AVG_S2": 12.26
+ },
+ {
+   "Name": "101 -  DEBAB  RANDA",
+   "SE": 5.2,
+   "THL": 10.05,
+   "BDD": 9.4,
+   "Réseaux": 10.9,
+   "DEV": 11.5,
+   "POO": 15.2,
+   "ENG": 18,
+   "AVG_S2": 10.5
+ },
+ {
+   "Name": "102 -  DERBANE  ABDELLAH",
+   "SE": 5.05,
+   "THL": 11.4,
+   "BDD": 10.25,
+   "Réseaux": 9.5,
+   "DEV": 9.1,
+   "POO": 15.2,
+   "ENG": 14,
+   "AVG_S2": 9.99
+ },
+ {
+   "Name": "103 -  DILMI  CHAIMA",
+   "SE": 0.3,
+   "THL": 3.65,
+   "BDD": 2.75,
+   "Réseaux": 2.93,
+   "DEV": 14.4,
+   "POO": 12.6,
+   "ENG": 10,
+   "AVG_S2": 5.58
+ },
+ {
+   "Name": "104 -  DILMI  FIRDAWS",
+   "SE": 4.21,
+   "THL": 9.15,
+   "BDD": 11.65,
+   "Réseaux": 7.45,
+   "DEV": 11.7,
+   "POO": 16.4,
+   "ENG": 14.5,
+   "AVG_S2": 9.93
+ },
+ {
+   "Name": "105 -  DJAHEL  Akram",
+   "SE": 0,
+   "THL": 2,
+   "BDD": 0,
+   "Réseaux": 0,
+   "DEV": 0,
+   "POO": 0,
+   "ENG": 0,
+   "AVG_S2": 0.25
+ },
+ {
+   "Name": "106 -  DJAIDJA  AHMED",
+   "SE": 5,
+   "THL": 2.7,
+   "BDD": 11.7,
+   "Réseaux": 4.25,
+   "DEV": 6.6,
+   "POO": 12.2,
+   "ENG": 10,
+   "AVG_S2": 7.24
+ },
+ {
+   "Name": "107 -  DJAIDJA  Abdelmouhimen\nomar",
+   "SE": 0,
+   "THL": 1.7,
+   "BDD": 3.3,
+   "Réseaux": 2.07,
+   "DEV": 9.8,
+   "POO": 7,
+   "ENG": 11,
+   "AVG_S2": 4.01
+ },
+ {
+   "Name": "108 -  DJAIDJA  DOUAA",
+   "SE": 5.36,
+   "THL": 11.9,
+   "BDD": 7.75,
+   "Réseaux": 6.45,
+   "DEV": 8.65,
+   "POO": 8,
+   "ENG": 12,
+   "AVG_S2": 7.99
+ },
+ {
+   "Name": "109 -  DJAIDJA  ISLAM",
+   "SE": 5.35,
+   "THL": 7.5,
+   "BDD": 11.4,
+   "Réseaux": 5.23,
+   "DEV": 9.3,
+   "POO": 12.55,
+   "ENG": 12,
+   "AVG_S2": 8.54
+ },
+ {
+   "Name": "110 -  DJAIDJA  MAHA",
+   "SE": 5.4,
+   "THL": 12.9,
+   "BDD": 12.8,
+   "Réseaux": 12.65,
+   "DEV": 6.2,
+   "POO": 18.7,
+   "ENG": 10,
+   "AVG_S2": 11.14
+ },
+ {
+   "Name": "111 -  DJALAB  MESSAOUD",
+   "SE": 4.13,
+   "THL": 10.9,
+   "BDD": 13.05,
+   "Réseaux": 9.67,
+   "DEV": 13.6,
+   "POO": 15.8,
+   "ENG": 7.5,
+   "AVG_S2": 10.54
+ },
+ {
+   "Name": "112 -  DJALAB  MOHAMED\nFOUAD",
+   "SE": 6.5,
+   "THL": 8.15,
+   "BDD": 5.55,
+   "Réseaux": 8.55,
+   "DEV": 10.6,
+   "POO": 13.3,
+   "ENG": 14.5,
+   "AVG_S2": 8.78
+ },
+ {
+   "Name": "113 -  DJALAB  YOUCEF",
+   "SE": 0,
+   "THL": 3,
+   "BDD": 2.4,
+   "Réseaux": 0,
+   "DEV": 0.3,
+   "POO": 5.2,
+   "ENG": 7.5,
+   "AVG_S2": 1.98
+ },
+ {
+   "Name": "114 -  DJEGHDALI  AYA MANAR",
+   "SE": 10.6,
+   "THL": 7.75,
+   "BDD": 10.5,
+   "Réseaux": 7.2,
+   "DEV": 13.5,
+   "POO": 20,
+   "ENG": 16.5,
+   "AVG_S2": 11.49
+ },
+ {
+   "Name": "115 -  DJOUIBA  ADEM",
+   "SE": 0.3,
+   "THL": 0.25,
+   "BDD": 2.2,
+   "Réseaux": 0,
+   "DEV": 3.2,
+   "POO": 0,
+   "ENG": 0,
+   "AVG_S2": 0.9
+ },
+ {
+   "Name": "116 -  DJOUMAGH  KHADIDJA",
+   "SE": 3.2,
+   "THL": 5.75,
+   "BDD": 10.01,
+   "Réseaux": 7.55,
+   "DEV": 6.8,
+   "POO": 9.6,
+   "ENG": 11,
+   "AVG_S2": 7.35
+ },
+ {
+   "Name": "117 -  DOUDOU   MOHAMMED EL\nAMIN",
+   "SE": 6.6,
+   "THL": 4.95,
+   "BDD": 8.2,
+   "Réseaux": 6.97,
+   "DEV": 11.9,
+   "POO": 15,
+   "ENG": 13,
+   "AVG_S2": 8.88
+ },
+ {
+   "Name": "118 -  DOUIBI  DALAL",
+   "SE": 4.65,
+   "THL": 4.15,
+   "BDD": 5.9,
+   "Réseaux": 5.85,
+   "DEV": 4.8,
+   "POO": 10.4,
+   "ENG": 16,
+   "AVG_S2": 6.5
+ },
+ {
+   "Name": "119 -  FALI  MOUFIDA",
+   "SE": 8.85,
+   "THL": 8.6,
+   "BDD": 7.7,
+   "Réseaux": 8.77,
+   "DEV": 8.1,
+   "POO": 12.4,
+   "ENG": 11.5,
+   "AVG_S2": 9.11
+ },
+ {
+   "Name": "120 -  FERAHTIA  ISLAM",
+   "SE": 0,
+   "THL": 2.65,
+   "BDD": 0.65,
+   "Réseaux": 0,
+   "DEV": 0.3,
+   "POO": 2,
+   "ENG": 10.5,
+   "AVG_S2": 1.4
+ },
+ {
+   "Name": "121 -  FERHATI  AZZEDDINE",
+   "SE": 5.25,
+   "THL": 11,
+   "BDD": 15.95,
+   "Réseaux": 12.1,
+   "DEV": 15.1,
+   "POO": 14.2,
+   "ENG": 18.5,
+   "AVG_S2": 12.44
+ },
+ {
+   "Name": "122 -  GHERABI  AHMED SAMEH",
+   "SE": 5.65,
+   "THL": 11.5,
+   "BDD": 15.6,
+   "Réseaux": 12.57,
+   "DEV": 11.6,
+   "POO": 17.7,
+   "ENG": 17,
+   "AVG_S2": 12.51
+ },
+ {
+   "Name": "123 -  GHERZOULI  DOUNYA",
+   "SE": 3.8,
+   "THL": 8.3,
+   "BDD": 5.65,
+   "Réseaux": 6.13,
+   "DEV": 11.1,
+   "POO": 9,
+   "ENG": 10,
+   "AVG_S2": 7.1
+ },
+ {
+   "Name": "124 -  GOUARI  TARIQ",
+   "SE": 0.6,
+   "THL": 2.2,
+   "BDD": 3.8,
+   "Réseaux": 2.85,
+   "DEV": 9.8,
+   "POO": 12,
+   "ENG": 10,
+   "AVG_S2": 4.99
+ },
+ {
+   "Name": "125 -  GOUFFI  Nadjah",
+   "SE": 3.71,
+   "THL": 5,
+   "BDD": 8.65,
+   "Réseaux": 3.75,
+   "DEV": 7.8,
+   "POO": 11.6,
+   "ENG": 13.5,
+   "AVG_S2": 6.92
+ },
+ {
+   "Name": "126 -  GOULAILIZ  HANA",
+   "SE": 8.7,
+   "THL": 6.95,
+   "BDD": 11.9,
+   "Réseaux": 9.4,
+   "DEV": 12.15,
+   "POO": 17.6,
+   "ENG": 17,
+   "AVG_S2": 11.28
+ },
+ {
+   "Name": "127 -  GUELMINE  FAIZ\nABDESSALAME",
+   "SE": 8.35,
+   "THL": 9.9,
+   "BDD": 11.4,
+   "Réseaux": 11.1,
+   "DEV": 8.5,
+   "POO": 14.4,
+   "ENG": 6,
+   "AVG_S2": 10.26
+ },
+ {
+   "Name": "128 -  GUENDOUZ  ZIYAD",
+   "SE": 5.4,
+   "THL": 9.1,
+   "BDD": 13.3,
+   "Réseaux": 13.1,
+   "DEV": 12.25,
+   "POO": 18,
+   "ENG": 17,
+   "AVG_S2": 11.95
+ },
+ {
+   "Name": "129 -  GUETTAI  Aya",
+   "SE": 6.55,
+   "THL": 10.15,
+   "BDD": 10.8,
+   "Réseaux": 12.5,
+   "DEV": 12.7,
+   "POO": 17.35,
+   "ENG": 19,
+   "AVG_S2": 11.81
+ },
+ {
+   "Name": "130 -  GUETTOUCHE  ASSALA\nHIYAM",
+   "SE": 0,
+   "THL": 0,
+   "BDD": 0,
+   "Réseaux": 0,
+   "DEV": 0,
+   "POO": 0,
+   "ENG": 0,
+   "AVG_S2": 0
+ },
+ {
+   "Name": "131 -  HACHADI  DJAMILA NAIMA",
+   "SE": 10.9,
+   "THL": 10,
+   "BDD": 14,
+   "Réseaux": 8.7,
+   "DEV": 12.6,
+   "POO": 18.8,
+   "ENG": 16.5,
+   "AVG_S2": 12.51
+ },
+ {
+   "Name": "132 -  HACHEMI  FATMA ZOHRA",
+   "SE": 5.94,
+   "THL": 8.2,
+   "BDD": 13.45,
+   "Réseaux": 10.07,
+   "DEV": 9.55,
+   "POO": 15.3,
+   "ENG": 7,
+   "AVG_S2": 10.09
+ },
+ {
+   "Name": "133 -  HADBAOUI  MERIEM\nSELSABIL",
+   "SE": 6.05,
+   "THL": 9.5,
+   "BDD": 11.6,
+   "Réseaux": 7.6,
+   "DEV": 10.65,
+   "POO": 17.55,
+   "ENG": 20,
+   "AVG_S2": 10.7
+ },
+ {
+   "Name": "134 -  HADERBACHE  Nor el imane",
+   "SE": 0,
+   "THL": 0,
+   "BDD": 1.1,
+   "Réseaux": 0.2,
+   "DEV": 0,
+   "POO": 0,
+   "ENG": 10,
+   "AVG_S2": 0.87
+ },
+ {
+   "Name": "135 -  HADJI  BADRA",
+   "SE": 3.7,
+   "THL": 4.65,
+   "BDD": 10.01,
+   "Réseaux": 6.05,
+   "DEV": 6.6,
+   "POO": 15.8,
+   "ENG": 13,
+   "AVG_S2": 7.9
+ },
+ {
+   "Name": "136 -  HAFIDI  ANES BEN HENNI",
+   "SE": 5.15,
+   "THL": 3.45,
+   "BDD": 10,
+   "Réseaux": 4.6,
+   "DEV": 8,
+   "POO": 12.4,
+   "ENG": 14,
+   "AVG_S2": 7.56
+ },
+ {
+   "Name": "137 -  HALIB  YASSAMINE",
+   "SE": 6.25,
+   "THL": 5.15,
+   "BDD": 12.9,
+   "Réseaux": 12.5,
+   "DEV": 13.2,
+   "POO": 15.8,
+   "ENG": 18.5,
+   "AVG_S2": 11.36
+ },
+ {
+   "Name": "138 -  HALLAB  YAAQOUB",
+   "SE": 6.61,
+   "THL": 10.2,
+   "BDD": 7.25,
+   "Réseaux": 7.2,
+   "DEV": 6.1,
+   "POO": 10,
+   "ENG": 14,
+   "AVG_S2": 8.11
+ },
+ {
+   "Name": "139 -  HAMDACHE  HALIMA",
+   "SE": 3.6,
+   "THL": 9.9,
+   "BDD": 15.45,
+   "Réseaux": 8.2,
+   "DEV": 7.2,
+   "POO": 17.1,
+   "ENG": 16,
+   "AVG_S2": 10.39
+ },
+ {
+   "Name": "140 -  HAMDANI  RANIA",
+   "SE": 2.33,
+   "THL": 8,
+   "BDD": 5,
+   "Réseaux": 3.53,
+   "DEV": 8.2,
+   "POO": 10.45,
+   "ENG": 10,
+   "AVG_S2": 6
+ },
+ {
+   "Name": "141 -  HAMDINI  AROUA",
+   "SE": 5.8,
+   "THL": 11.85,
+   "BDD": 10.8,
+   "Réseaux": 8.7,
+   "DEV": 10.6,
+   "POO": 16.15,
+   "ENG": 13,
+   "AVG_S2": 10.38
+ },
+ {
+   "Name": "142 -  HAMMOU  OUSSAMA",
+   "SE": 2.55,
+   "THL": 4.55,
+   "BDD": 7.65,
+   "Réseaux": 4.1,
+   "DEV": 8.4,
+   "POO": 12.4,
+   "ENG": 14,
+   "AVG_S2": 6.73
+ },
+ {
+   "Name": "143 -  HAMOUD  CHOAIB",
+   "SE": 15.19,
+   "THL": 8.85,
+   "BDD": 15.95,
+   "Réseaux": 6.45,
+   "DEV": 12.6,
+   "POO": 17.85,
+   "ENG": 16,
+   "AVG_S2": 12.96
+ },
+ {
+   "Name": "144 -  HAMOUDI  IKRAM",
+   "SE": 4.35,
+   "THL": 5.65,
+   "BDD": 7,
+   "Réseaux": 6.05,
+   "DEV": 5.3,
+   "POO": 12,
+   "ENG": 16,
+   "AVG_S2": 7.13
+ },
+ {
+   "Name": "145 -  HAMZA  MOHAMMED EL\nAMIN",
+   "SE": 0,
+   "THL": 0.75,
+   "BDD": 0,
+   "Réseaux": 0,
+   "DEV": 3.1,
+   "POO": 0,
+   "ENG": 0,
+   "AVG_S2": 0.48
+ },
+ {
+   "Name": "146 -  HANAFI  IKRAM",
+   "SE": 6.4,
+   "THL": 8.9,
+   "BDD": 9.15,
+   "Réseaux": 8.9,
+   "DEV": 10.1,
+   "POO": 14.75,
+   "ENG": 16.5,
+   "AVG_S2": 9.84
+ },
+ {
+   "Name": "147 -  HAROUZ  DINA",
+   "SE": 9.85,
+   "THL": 6.9,
+   "BDD": 9,
+   "Réseaux": 9.43,
+   "DEV": 7.7,
+   "POO": 18.8,
+   "ENG": 8,
+   "AVG_S2": 9.98
+ },
+ {
+   "Name": "148 -  HASNAOUI  SAMAH",
+   "SE": 4.14,
+   "THL": 8.65,
+   "BDD": 13.35,
+   "Réseaux": 10.8,
+   "DEV": 5.5,
+   "POO": 6,
+   "ENG": 16.5,
+   "AVG_S2": 8.86
+ },
+ {
+   "Name": "149 -  HENNI  ZINEB",
+   "SE": 3.33,
+   "THL": 9,
+   "BDD": 7.5,
+   "Réseaux": 5,
+   "DEV": 8.2,
+   "POO": 6,
+   "ENG": 16,
+   "AVG_S2": 6.87
+ },
+ {
+   "Name": "150 -  HERAIZ  IMADEDDINE",
+   "SE": 3.65,
+   "THL": 9.05,
+   "BDD": 13.25,
+   "Réseaux": 10.4,
+   "DEV": 11.9,
+   "POO": 11.2,
+   "ENG": 14,
+   "AVG_S2": 10.01
+ },
+ {
+   "Name": "151 -  HERIZI  Abdellah amdjed",
+   "SE": 1.95,
+   "THL": 5,
+   "BDD": 9,
+   "Réseaux": 9.65,
+   "DEV": 4.7,
+   "POO": 6,
+   "ENG": 13,
+   "AVG_S2": 6.64
+ },
+ {
+   "Name": "152 -  HERZI  AYA",
+   "SE": 8.88,
+   "THL": 5.3,
+   "BDD": 11.85,
+   "Réseaux": 7.8,
+   "DEV": 8.2,
+   "POO": 10.15,
+   "ENG": 16,
+   "AVG_S2": 9.31
+ },
+ {
+   "Name": "153 -  IKHLEF  MOHAMED LAMIN",
+   "SE": 0,
+   "THL": 0,
+   "BDD": 0,
+   "Réseaux": 0,
+   "DEV": 0,
+   "POO": 0,
+   "ENG": 0,
+   "AVG_S2": 0
+ },
+ {
+   "Name": "154 -  KABOUYA  ELMAHDI",
+   "SE": 8.54,
+   "THL": 4.7,
+   "BDD": 14.75,
+   "Réseaux": 14.45,
+   "DEV": 13.3,
+   "POO": 14.25,
+   "ENG": 17,
+   "AVG_S2": 12.17
+ },
+ {
+   "Name": "155 -  KAHOUL  MOUSSAAB",
+   "SE": 0.6,
+   "THL": 2.6,
+   "BDD": 0.3,
+   "Réseaux": 1.7,
+   "DEV": 0.3,
+   "POO": 4.9,
+   "ENG": 11,
+   "AVG_S2": 2.15
+ },
+ {
+   "Name": "156 -  KARA  IKRAM RIHEM",
+   "SE": 5.78,
+   "THL": 6.55,
+   "BDD": 6.15,
+   "Réseaux": 8.53,
+   "DEV": 13.8,
+   "POO": 13.7,
+   "ENG": 16,
+   "AVG_S2": 9.09
+ },
+ {
+   "Name": "157 -  KASMI  HADIL",
+   "SE": 5.55,
+   "THL": 7.7,
+   "BDD": 10.5,
+   "Réseaux": 11.25,
+   "DEV": 9.7,
+   "POO": 15.2,
+   "ENG": 18,
+   "AVG_S2": 10.32
+ },
+ {
+   "Name": "158 -  KHABAT  Ikram",
+   "SE": 11.04,
+   "THL": 8.1,
+   "BDD": 11.5,
+   "Réseaux": 10.5,
+   "DEV": 5.3,
+   "POO": 11.45,
+   "ENG": 19,
+   "AVG_S2": 10.49
+ },
+ {
+   "Name": "159 -  KHAOUI  CHEIMA",
+   "SE": 4.65,
+   "THL": 8.55,
+   "BDD": 10,
+   "Réseaux": 5.75,
+   "DEV": 11.2,
+   "POO": 16.25,
+   "ENG": 17,
+   "AVG_S2": 9.39
+ },
+ {
+   "Name": "160 -  KHODJA  SABRINE",
+   "SE": 8.8,
+   "THL": 11,
+   "BDD": 10.75,
+   "Réseaux": 9.9,
+   "DEV": 10.5,
+   "POO": 12.15,
+   "ENG": 17.5,
+   "AVG_S2": 10.83
+ },
+ {
+   "Name": "161 -  KHODJA  YASSAMINE",
+   "SE": 3.05,
+   "THL": 3.6,
+   "BDD": 7,
+   "Réseaux": 4.9,
+   "DEV": 5.3,
+   "POO": 7.95,
+   "ENG": 17,
+   "AVG_S2": 5.97
+ },
+ {
+   "Name": "162 -  KOUIDRI  MOHAMED",
+   "SE": 1.48,
+   "THL": 4.85,
+   "BDD": 6.6,
+   "Réseaux": 8.45,
+   "DEV": 4,
+   "POO": 12.3,
+   "ENG": 10.5,
+   "AVG_S2": 6.4
+ },
+ {
+   "Name": "163 -  LACEFAR  SABA",
+   "SE": 5.35,
+   "THL": 5.9,
+   "BDD": 6.7,
+   "Réseaux": 8.35,
+   "DEV": 9.4,
+   "POO": 15.5,
+   "ENG": 16.5,
+   "AVG_S2": 8.71
+ },
+ {
+   "Name": "164 -  LADJAL  SAFIA",
+   "SE": 8.15,
+   "THL": 4.7,
+   "BDD": 10.05,
+   "Réseaux": 11.75,
+   "DEV": 12.6,
+   "POO": 14.9,
+   "ENG": 17,
+   "AVG_S2": 10.7
+ },
+ {
+   "Name": "165 -  LAHKDARI  OUSSAMA\nZIANE",
+   "SE": 1.1,
+   "THL": 3.4,
+   "BDD": 14.5,
+   "Réseaux": 3.7,
+   "DEV": 3,
+   "POO": 10.6,
+   "ENG": 10,
+   "AVG_S2": 6.37
+ },
+ {
+   "Name": "166 -  LALDJI  MOHAMED BACHIR",
+   "SE": 10.25,
+   "THL": 11.65,
+   "BDD": 14.55,
+   "Réseaux": 11.85,
+   "DEV": 15.1,
+   "POO": 18.8,
+   "ENG": 10,
+   "AVG_S2": 13.19
+ },
+ {
+   "Name": "167 -  LAOUEDJ  IBRAHIM\nELKHALIL",
+   "SE": 9.05,
+   "THL": 8.15,
+   "BDD": 13.45,
+   "Réseaux": 11.3,
+   "DEV": 13.2,
+   "POO": 14.8,
+   "ENG": 13.5,
+   "AVG_S2": 11.7
+ },
+ {
+   "Name": "168 -  LASSELAT  SOUNDOUS",
+   "SE": 3.72,
+   "THL": 5.35,
+   "BDD": 6.8,
+   "Réseaux": 6.2,
+   "DEV": 4.2,
+   "POO": 12.8,
+   "ENG": 6.5,
+   "AVG_S2": 6.33
+ },
+ {
+   "Name": "169 -  LATRECHE  AZZEDDINE",
+   "SE": 2.35,
+   "THL": 3.35,
+   "BDD": 9.7,
+   "Réseaux": 9.85,
+   "DEV": 11.6,
+   "POO": 13.8,
+   "ENG": 15,
+   "AVG_S2": 8.64
+ },
+ {
+   "Name": "170 -  LEGHOUIL  DOUHA",
+   "SE": 5.96,
+   "THL": 5.8,
+   "BDD": 11.65,
+   "Réseaux": 7.65,
+   "DEV": 13.9,
+   "POO": 12.5,
+   "ENG": 10,
+   "AVG_S2": 9.39
+ },
+ {
+   "Name": "171 -  LOGRADA  BACHRA",
+   "SE": 4.1,
+   "THL": 6.65,
+   "BDD": 13.5,
+   "Réseaux": 10.2,
+   "DEV": 9,
+   "POO": 18.8,
+   "ENG": 15,
+   "AVG_S2": 10.46
+ },
+ {
+   "Name": "172 -  LORABI  HIBA AYATALLAH",
+   "SE": 4.08,
+   "THL": 10.2,
+   "BDD": 11.45,
+   "Réseaux": 4.03,
+   "DEV": 5,
+   "POO": 10.9,
+   "ENG": 6,
+   "AVG_S2": 7.31
+ },
+ {
+   "Name": "173 -  LOUKRIZ  ABDERRAOUF",
+   "SE": 9.83,
+   "THL": 9.7,
+   "BDD": 15.45,
+   "Réseaux": 8.1,
+   "DEV": 16.5,
+   "POO": 16.25,
+   "ENG": 17,
+   "AVG_S2": 12.63
+ },
+ {
+   "Name": "174 -  LOUKRIZ  FATIMA",
+   "SE": 4,
+   "THL": 4.65,
+   "BDD": 10.05,
+   "Réseaux": 5,
+   "DEV": 4.4,
+   "POO": 14,
+   "ENG": 10,
+   "AVG_S2": 7.08
+ },
+ {
+   "Name": "175 -  LOUKRIZ  OM EL KHAIR",
+   "SE": 5.45,
+   "THL": 7.85,
+   "BDD": 15.9,
+   "Réseaux": 10.3,
+   "DEV": 8.2,
+   "POO": 12.8,
+   "ENG": 10,
+   "AVG_S2": 10.17
+ },
+ {
+   "Name": "176 -  MAAMRI  LEILA",
+   "SE": 7.95,
+   "THL": 12.25,
+   "BDD": 12.25,
+   "Réseaux": 12.3,
+   "DEV": 11,
+   "POO": 18,
+   "ENG": 20,
+   "AVG_S2": 12.5
+ },
+ {
+   "Name": "177 -  MADJADI  AMIRA",
+   "SE": 3.69,
+   "THL": 10.15,
+   "BDD": 5.8,
+   "Réseaux": 8.63,
+   "DEV": 6.3,
+   "POO": 10,
+   "ENG": 13,
+   "AVG_S2": 7.52
+ },
+ {
+   "Name": "178 -  MAHAMDI  ABIR",
+   "SE": 0.98,
+   "THL": 11.45,
+   "BDD": 10.01,
+   "Réseaux": 4.65,
+   "DEV": 10.9,
+   "POO": 11.7,
+   "ENG": 11,
+   "AVG_S2": 7.88
+ },
+ {
+   "Name": "179 -  MAHAMMEDI  Aya",
+   "SE": 2.9,
+   "THL": 5.2,
+   "BDD": 5.1,
+   "Réseaux": 4.35,
+   "DEV": 8.2,
+   "POO": 12.05,
+   "ENG": 16,
+   "AVG_S2": 6.5
+ },
+ {
+   "Name": "180 -  MAHDADI  SAMIA",
+   "SE": 10.58,
+   "THL": 10.2,
+   "BDD": 14.45,
+   "Réseaux": 9.2,
+   "DEV": 14.9,
+   "POO": 15.5,
+   "ENG": 17.5,
+   "AVG_S2": 12.59
+ },
+ {
+   "Name": "181 -  MAHDI  IMANE",
+   "SE": 4.03,
+   "THL": 5.95,
+   "BDD": 10.25,
+   "Réseaux": 5.8,
+   "DEV": 5.2,
+   "POO": 6.15,
+   "ENG": 12.5,
+   "AVG_S2": 6.71
+ },
+ {
+   "Name": "182 -  MAHROUG  FAHD\nMOHAMMED",
+   "SE": 8.27,
+   "THL": 8.05,
+   "BDD": 12.1,
+   "Réseaux": 11.77,
+   "DEV": 15.6,
+   "POO": 16.95,
+   "ENG": 15.5,
+   "AVG_S2": 12.07
+ },
+ {
+   "Name": "183 -  MAROUF  YOUNES",
+   "SE": 7.4,
+   "THL": 5.85,
+   "BDD": 12.3,
+   "Réseaux": 8.7,
+   "DEV": 5.1,
+   "POO": 10,
+   "ENG": 9,
+   "AVG_S2": 8.51
+ },
+ {
+   "Name": "184 -  MAZARI  ELHADJ AMIN",
+   "SE": 8.26,
+   "THL": 11.2,
+   "BDD": 10.1,
+   "Réseaux": 11.5,
+   "DEV": 12.35,
+   "POO": 15.8,
+   "ENG": 14,
+   "AVG_S2": 11.4
+ },
+ {
+   "Name": "185 -  MEBARKI  RADOUANE",
+   "SE": 3.7,
+   "THL": 3.25,
+   "BDD": 12.1,
+   "Réseaux": 8.6,
+   "DEV": 7.9,
+   "POO": 13.2,
+   "ENG": 7,
+   "AVG_S2": 8.06
+ },
+ {
+   "Name": "186 -  MEKIDECHE\nABDERRAHMEN",
+   "SE": 2.05,
+   "THL": 4,
+   "BDD": 7.8,
+   "Réseaux": 5.03,
+   "DEV": 8,
+   "POO": 10,
+   "ENG": 8,
+   "AVG_S2": 6.04
+ },
+ {
+   "Name": "187 -  MEKIDECHE  Nedjla",
+   "SE": 6.45,
+   "THL": 10.45,
+   "BDD": 11.4,
+   "Réseaux": 10.65,
+   "DEV": 15.35,
+   "POO": 13.95,
+   "ENG": 12,
+   "AVG_S2": 11.06
+ },
+ {
+   "Name": "188 -  MEKKI  AMIRA",
+   "SE": 7.2,
+   "THL": 5.7,
+   "BDD": 8.3,
+   "Réseaux": 10.9,
+   "DEV": 10,
+   "POO": 13,
+   "ENG": 13,
+   "AVG_S2": 9.35
+ },
+ {
+   "Name": "189 -  MELIANI  DALAL",
+   "SE": 8.65,
+   "THL": 10.75,
+   "BDD": 15.6,
+   "Réseaux": 8.85,
+   "DEV": 8.3,
+   "POO": 19.2,
+   "ENG": 13.5,
+   "AVG_S2": 11.83
+ },
+ {
+   "Name": "190 -  MELIANI  TAHA EL AMIN",
+   "SE": 3.7,
+   "THL": 5.75,
+   "BDD": 14.7,
+   "Réseaux": 8.95,
+   "DEV": 13.4,
+   "POO": 16.7,
+   "ENG": 16.5,
+   "AVG_S2": 10.64
+ },
+ {
+   "Name": "191 -  MENAA  SARRA",
+   "SE": 7.1,
+   "THL": 9.25,
+   "BDD": 12.2,
+   "Réseaux": 8.17,
+   "DEV": 11.05,
+   "POO": 13.5,
+   "ENG": 10,
+   "AVG_S2": 10
+ },
+ {
+   "Name": "192 -  MERADA  AZAD",
+   "SE": 8.05,
+   "THL": 4.5,
+   "BDD": 6.1,
+   "Réseaux": 9.25,
+   "DEV": 8.2,
+   "POO": 12.25,
+   "ENG": 14,
+   "AVG_S2": 8.38
+ },
+ {
+   "Name": "193 -  MESSAOUDI\nABDELSAMAD",
+   "SE": 0,
+   "THL": 4.7,
+   "BDD": 12.3,
+   "Réseaux": 4.25,
+   "DEV": 2.6,
+   "POO": 7.55,
+   "ENG": 10.5,
+   "AVG_S2": 5.62
+ },
+ {
+   "Name": "194 -  MESSAOUDI  AMIRA",
+   "SE": 9.55,
+   "THL": 12.55,
+   "BDD": 13.65,
+   "Réseaux": 6.8,
+   "DEV": 15.9,
+   "POO": 16.4,
+   "ENG": 17,
+   "AVG_S2": 12.3
+ },
+ {
+   "Name": "195 -  MESSEGUEM  SOHEYB",
+   "SE": 1.09,
+   "THL": 2.45,
+   "BDD": 10.55,
+   "Réseaux": 5.63,
+   "DEV": 12.6,
+   "POO": 15.9,
+   "ENG": 16.5,
+   "AVG_S2": 8.14
+ },
+ {
+   "Name": "196 -  MEZAACHE  MOHAMMED ESSAID ELHACHEMI",
+   "SE": 3.74,
+   "THL": 9,
+   "BDD": 11.95,
+   "Réseaux": 12.2,
+   "DEV": 16.5,
+   "POO": 17.4,
+   "ENG": 17.5,
+   "AVG_S2": 11.69
+ },
+ {
+   "Name": "197 -  MEZRAG  MOUSSA",
+   "SE": 9.3,
+   "THL": 10.6,
+   "BDD": 10.2,
+   "Réseaux": 9.67,
+   "DEV": 6.2,
+   "POO": 17.2,
+   "ENG": 14,
+   "AVG_S2": 10.6
+ },
+ {
+   "Name": "198 -  MIAADI  SALOUA",
+   "SE": 5.67,
+   "THL": 7.3,
+   "BDD": 14.9,
+   "Réseaux": 9.55,
+   "DEV": 10.6,
+   "POO": 16.25,
+   "ENG": 20,
+   "AVG_S2": 11.17
+ },
+ {
+   "Name": "199 -  MIZI  AMIRA",
+   "SE": 8.01,
+   "THL": 7.3,
+   "BDD": 12.35,
+   "Réseaux": 7.47,
+   "DEV": 14.6,
+   "POO": 17.7,
+   "ENG": 18,
+   "AVG_S2": 11.29
+ },
+ {
+   "Name": "200 -  MOSTAFAOUI  DOUAA\nELBATOUL",
+   "SE": 3.8,
+   "THL": 2.7,
+   "BDD": 6.9,
+   "Réseaux": 6.95,
+   "DEV": 10.65,
+   "POO": 10.2,
+   "ENG": 10,
+   "AVG_S2": 6.88
+ },
+ {
+   "Name": "201 -  MOUISSAT  KHAOULA",
+   "SE": 0.5,
+   "THL": 5.15,
+   "BDD": 6.4,
+   "Réseaux": 5.1,
+   "DEV": 7.05,
+   "POO": 8.95,
+   "ENG": 13.5,
+   "AVG_S2": 5.74
+ },
+ {
+   "Name": "202 -  MOUSSA  KAWTHER",
+   "SE": 7.5,
+   "THL": 10.95,
+   "BDD": 11.5,
+   "Réseaux": 7.2,
+   "DEV": 12.5,
+   "POO": 18,
+   "ENG": 12,
+   "AVG_S2": 10.84
+ },
+ {
+   "Name": "203 -  NAOUI  DOUAA",
+   "SE": 2.45,
+   "THL": 4.25,
+   "BDD": 8.1,
+   "Réseaux": 5.25,
+   "DEV": 4.9,
+   "POO": 8,
+   "ENG": 4,
+   "AVG_S2": 5.36
+ },
+ {
+   "Name": "204 -  NASRI  ABDELBAQI",
+   "SE": 11.38,
+   "THL": 7.7,
+   "BDD": 5.45,
+   "Réseaux": 8.55,
+   "DEV": 8,
+   "POO": 15.3,
+   "ENG": 14,
+   "AVG_S2": 9.51
+ },
+ {
+   "Name": "205 -  NASRI  AMIN",
+   "SE": 0.3,
+   "THL": 10.65,
+   "BDD": 1.95,
+   "Réseaux": 3.47,
+   "DEV": 3.4,
+   "POO": 6.4,
+   "ENG": 19.5,
+   "AVG_S2": 4.85
+ },
+ {
+   "Name": "206 -  NECIR  MERIEM",
+   "SE": 9.6,
+   "THL": 7.5,
+   "BDD": 16.55,
+   "Réseaux": 10.75,
+   "DEV": 16.35,
+   "POO": 17.75,
+   "ENG": 20,
+   "AVG_S2": 13.37
+ },
+ {
+   "Name": "207 -  NIA  IMANE",
+   "SE": 7.65,
+   "THL": 9.1,
+   "BDD": 12.7,
+   "Réseaux": 12.33,
+   "DEV": 9.95,
+   "POO": 16.95,
+   "ENG": 14.5,
+   "AVG_S2": 11.54
+ },
+ {
+   "Name": "208 -  OMRI  ABDERRAHMEN",
+   "SE": 4.15,
+   "THL": 9.35,
+   "BDD": 8.5,
+   "Réseaux": 4.6,
+   "DEV": 11.7,
+   "POO": 6,
+   "ENG": 15,
+   "AVG_S2": 7.55
+ },
+ {
+   "Name": "209 -  OUADDAH  ABDELBARI",
+   "SE": 0,
+   "THL": 0,
+   "BDD": 0,
+   "Réseaux": 0,
+   "DEV": 10.7,
+   "POO": 9.8,
+   "ENG": 10,
+   "AVG_S2": 3.19
+ },
+ {
+   "Name": "210 -  OUGHNIA  MANAR",
+   "SE": 9.65,
+   "THL": 15.2,
+   "BDD": 12.85,
+   "Réseaux": 12.45,
+   "DEV": 12.3,
+   "POO": 13.6,
+   "ENG": 20,
+   "AVG_S2": 12.94
+ },
+ {
+   "Name": "211 -  OULD LAZAZI\nMOHAMMED HOCINE",
+   "SE": 4.5,
+   "THL": 7.7,
+   "BDD": 13.1,
+   "Réseaux": 6.55,
+   "DEV": 0.9,
+   "POO": 8.4,
+   "ENG": 12,
+   "AVG_S2": 7.41
+ },
+ {
+   "Name": "212 -  OULD TOUMI  AHMED",
+   "SE": 9.39,
+   "THL": 10.9,
+   "BDD": 14.75,
+   "Réseaux": 15.2,
+   "DEV": 15.9,
+   "POO": 18.4,
+   "ENG": 20,
+   "AVG_S2": 14.28
+ },
+ {
+   "Name": "213 -  OUSSAIDENE\nABDELMALEK MEHDI",
+   "SE": 0,
+   "THL": 0,
+   "BDD": 0,
+   "Réseaux": 0,
+   "DEV": 0,
+   "POO": 0,
+   "ENG": 0,
+   "AVG_S2": 0
+ },
+ {
+   "Name": "214 -  RABAI  AYOUB",
+   "SE": 0,
+   "THL": 0,
+   "BDD": 0,
+   "Réseaux": 0,
+   "DEV": 0,
+   "POO": 0,
+   "ENG": 0,
+   "AVG_S2": 0
+ },
+ {
+   "Name": "215 -  RABHI  AHMED AZEDDINE",
+   "SE": 0,
+   "THL": 0,
+   "BDD": 0,
+   "Réseaux": 0,
+   "DEV": 0,
+   "POO": 0,
+   "ENG": 0,
+   "AVG_S2": 0
+ },
+ {
+   "Name": "216 -  RAHMANI  NABIL",
+   "SE": 9.91,
+   "THL": 9.45,
+   "BDD": 8.9,
+   "Réseaux": 11.8,
+   "DEV": 12.5,
+   "POO": 17.9,
+   "ENG": 8.5,
+   "AVG_S2": 11.25
+ },
+ {
+   "Name": "217 -  REDAOUI  MALAK",
+   "SE": 3.44,
+   "THL": 10.55,
+   "BDD": 14.35,
+   "Réseaux": 10.35,
+   "DEV": 5.8,
+   "POO": 11.1,
+   "ENG": 17,
+   "AVG_S2": 9.77
+ },
+ {
+   "Name": "218 -  REZGUI  NOUR ELHOUDA",
+   "SE": 0.15,
+   "THL": 5.55,
+   "BDD": 6.1,
+   "Réseaux": 4.13,
+   "DEV": 13.85,
+   "POO": 12.2,
+   "ENG": 17,
+   "AVG_S2": 6.96
+ },
+ {
+   "Name": "219 -  REZIGAT  Zakarya",
+   "SE": 8.34,
+   "THL": 7.1,
+   "BDD": 13.9,
+   "Réseaux": 10.6,
+   "DEV": 16.2,
+   "POO": 19.55,
+   "ENG": 17.5,
+   "AVG_S2": 12.61
+ },
+ {
+   "Name": "220 -  SAADA  AYA QATR EN\nNADA",
+   "SE": 0.7,
+   "THL": 2.75,
+   "BDD": 5.8,
+   "Réseaux": 3,
+   "DEV": 10.2,
+   "POO": 15,
+   "ENG": 11,
+   "AVG_S2": 5.96
+ },
+ {
+   "Name": "221 -  SAADI  CHEKER ALLAH",
+   "SE": 3.93,
+   "THL": 6.55,
+   "BDD": 13.2,
+   "Réseaux": 5.15,
+   "DEV": 13.5,
+   "POO": 10.5,
+   "ENG": 12,
+   "AVG_S2": 8.75
+ },
+ {
+   "Name": "222 -  SAHRAOUI  NASREDDINE",
+   "SE": 10.45,
+   "THL": 9.35,
+   "BDD": 7,
+   "Réseaux": 11.3,
+   "DEV": 11.3,
+   "POO": 16.45,
+   "ENG": 19,
+   "AVG_S2": 11.22
+ },
+ {
+   "Name": "223 -  SAIDANI  ABDELBASSET\nABDELDJALIL",
+   "SE": 5.25,
+   "THL": 8.1,
+   "BDD": 11.2,
+   "Réseaux": 8.25,
+   "DEV": 11.8,
+   "POO": 10.9,
+   "ENG": 14,
+   "AVG_S2": 9.36
+ },
+ {
+   "Name": "224 -  SAIDI  ZOUBEYDA",
+   "SE": 9.73,
+   "THL": 6.4,
+   "BDD": 9.3,
+   "Réseaux": 8.33,
+   "DEV": 8.2,
+   "POO": 17.25,
+   "ENG": 13,
+   "AVG_S2": 9.93
+ },
+ {
+   "Name": "225 -  SAILAA  MOHAMMED\nRADHWEN",
+   "SE": 4.18,
+   "THL": 7,
+   "BDD": 6.15,
+   "Réseaux": 4.47,
+   "DEV": 8.3,
+   "POO": 11.3,
+   "ENG": 12,
+   "AVG_S2": 6.85
+ },
+ {
+   "Name": "226 -  SALMI  QWIDER\nABDELMOUMIN",
+   "SE": 0,
+   "THL": 2,
+   "BDD": 0,
+   "Réseaux": 0,
+   "DEV": 0,
+   "POO": 0,
+   "ENG": 0,
+   "AVG_S2": 0.25
+ },
+ {
+   "Name": "227 -  SAOUDI  KHAWLA",
+   "SE": 5.48,
+   "THL": 6.45,
+   "BDD": 6.15,
+   "Réseaux": 9.67,
+   "DEV": 6.1,
+   "POO": 14.55,
+   "ENG": 13,
+   "AVG_S2": 8.2
+ },
+ {
+   "Name": "228 -  SAOUDI  THEBAT",
+   "SE": 7.87,
+   "THL": 8.2,
+   "BDD": 9,
+   "Réseaux": 6.3,
+   "DEV": 7.8,
+   "POO": 16.75,
+   "ENG": 12,
+   "AVG_S2": 9.19
+ },
+ {
+   "Name": "229 -  SASSAOUI  DJAMILA",
+   "SE": 3.19,
+   "THL": 4.65,
+   "BDD": 5.4,
+   "Réseaux": 3.9,
+   "DEV": 4.3,
+   "POO": 9.45,
+   "ENG": 13.5,
+   "AVG_S2": 5.49
+ },
+ {
+   "Name": "230 -  SAYHI  ZINEB",
+   "SE": 4.38,
+   "THL": 7.85,
+   "BDD": 8.3,
+   "Réseaux": 5.47,
+   "DEV": 7.5,
+   "POO": 12.75,
+   "ENG": 14.5,
+   "AVG_S2": 7.83
+ },
+ {
+   "Name": "231 -  SEBAA  YACINE",
+   "SE": 1.95,
+   "THL": 5,
+   "BDD": 6.5,
+   "Réseaux": 4.15,
+   "DEV": 6.4,
+   "POO": 12.8,
+   "ENG": 10.5,
+   "AVG_S2": 6.05
+ },
+ {
+   "Name": "232 -  SEGHIOUR  LINA MARIYA",
+   "SE": 12.7,
+   "THL": 9.85,
+   "BDD": 12.65,
+   "Réseaux": 13.05,
+   "DEV": 13.5,
+   "POO": 18.1,
+   "ENG": 18.5,
+   "AVG_S2": 13.54
+ },
+ {
+   "Name": "233 -  SENINA  SOUHA",
+   "SE": 7.65,
+   "THL": 11.65,
+   "BDD": 8.9,
+   "Réseaux": 13.83,
+   "DEV": 11.3,
+   "POO": 17.25,
+   "ENG": 16,
+   "AVG_S2": 11.72
+ },
+ {
+   "Name": "234 -  SERRAI  DOUNYA",
+   "SE": 1.57,
+   "THL": 2.95,
+   "BDD": 6.85,
+   "Réseaux": 6.97,
+   "DEV": 4.3,
+   "POO": 10.4,
+   "ENG": 0,
+   "AVG_S2": 5.09
+ },
+ {
+   "Name": "235 -  TABI  IBTISSAM",
+   "SE": 2.95,
+   "THL": 5.45,
+   "BDD": 5.5,
+   "Réseaux": 5.4,
+   "DEV": 5.1,
+   "POO": 6.6,
+   "ENG": 13,
+   "AVG_S2": 5.55
+ },
+ {
+   "Name": "236 -  TABI  NOUR EDDINE\nMOHAMMED",
+   "SE": 0.4,
+   "THL": 2.4,
+   "BDD": 1.8,
+   "Réseaux": 0.7,
+   "DEV": 0.3,
+   "POO": 8.9,
+   "ENG": 18,
+   "AVG_S2": 3.12
+ },
+ {
+   "Name": "237 -  TAHMI  SEYF EDDINE",
+   "SE": 2.2,
+   "THL": 5.25,
+   "BDD": 8.4,
+   "Réseaux": 6.3,
+   "DEV": 6.4,
+   "POO": 8.8,
+   "ENG": 15,
+   "AVG_S2": 6.66
+ },
+ {
+   "Name": "238 -  TAIBI  MOHAMED BAHA\nEDDINE",
+   "SE": 2.65,
+   "THL": 5.6,
+   "BDD": 5.5,
+   "Réseaux": 7.45,
+   "DEV": 9.4,
+   "POO": 8.8,
+   "ENG": 19,
+   "AVG_S2": 7.09
+ },
+ {
+   "Name": "239 -  TALBI  IKRAM",
+   "SE": 6.8,
+   "THL": 6.35,
+   "BDD": 8.95,
+   "Réseaux": 6.65,
+   "DEV": 11.1,
+   "POO": 13.5,
+   "ENG": 15.5,
+   "AVG_S2": 9.04
+ },
+ {
+   "Name": "240 -  TEBANI  RANIA",
+   "SE": 2.68,
+   "THL": 7.55,
+   "BDD": 6.7,
+   "Réseaux": 7.15,
+   "DEV": 6.9,
+   "POO": 10.45,
+   "ENG": 14,
+   "AVG_S2": 7.09
+ },
+ {
+   "Name": "241 -  THAMRI  MAYADA",
+   "SE": 5.8,
+   "THL": 12.05,
+   "BDD": 10.35,
+   "Réseaux": 8.9,
+   "DEV": 10.3,
+   "POO": 16.25,
+   "ENG": 19,
+   "AVG_S2": 10.71
+ },
+ {
+   "Name": "242 -  THARAFI  SOHAIB",
+   "SE": 3.55,
+   "THL": 10.35,
+   "BDD": 11.55,
+   "Réseaux": 10.9,
+   "DEV": 12.7,
+   "POO": 18.1,
+   "ENG": 11.5,
+   "AVG_S2": 10.74
+ },
+ {
+   "Name": "243 -  TITOUM  ISSAM",
+   "SE": 4.32,
+   "THL": 5.75,
+   "BDD": 3.8,
+   "Réseaux": 3.4,
+   "DEV": 4.2,
+   "POO": 11.7,
+   "ENG": 19,
+   "AVG_S2": 6.05
+ },
+ {
+   "Name": "244 -  TITRAOUI  ABDERRAOUF",
+   "SE": 1.7,
+   "THL": 4.05,
+   "BDD": 10.4,
+   "Réseaux": 5.7,
+   "DEV": 12.2,
+   "POO": 11.6,
+   "ENG": 16.5,
+   "AVG_S2": 7.85
+ },
+ {
+   "Name": "245 -  TOUNSI  KHAWLA",
+   "SE": 2.1,
+   "THL": 5.1,
+   "BDD": 7.7,
+   "Réseaux": 5.4,
+   "DEV": 5.8,
+   "POO": 18.1,
+   "ENG": 13,
+   "AVG_S2": 7.29
+ },
+ {
+   "Name": "246 -  TURQUI  AKRAM",
+   "SE": 7.27,
+   "THL": 9.05,
+   "BDD": 6.95,
+   "Réseaux": 8.73,
+   "DEV": 10.8,
+   "POO": 12.1,
+   "ENG": 17.5,
+   "AVG_S2": 9.39
+ },
+ {
+   "Name": "247 -  YAHIAOUI  SAFIA",
+   "SE": 5.7,
+   "THL": 5.15,
+   "BDD": 11.45,
+   "Réseaux": 7.63,
+   "DEV": 9.8,
+   "POO": 15.2,
+   "ENG": 15,
+   "AVG_S2": 9.35
+ },
+ {
+   "Name": "248 -  YAHIAOUI  SAMIA",
+   "SE": 0,
+   "THL": 0.45,
+   "BDD": 1,
+   "Réseaux": 0,
+   "DEV": 0,
+   "POO": 0,
+   "ENG": 18,
+   "AVG_S2": 1.37
+ },
+ {
+   "Name": "249 -  YALLAOUI  SALAH EDDINE",
+   "SE": 6.85,
+   "THL": 7.2,
+   "BDD": 9,
+   "Réseaux": 6.4,
+   "DEV": 10.7,
+   "POO": 16.1,
+   "ENG": 15,
+   "AVG_S2": 9.36
+ },
+ {
+   "Name": "250 -  ZANAT  CHAHINEZ",
+   "SE": 5.27,
+   "THL": 10.8,
+   "BDD": 13.15,
+   "Réseaux": 10.45,
+   "DEV": 14.2,
+   "POO": 17.7,
+   "ENG": 14.5,
+   "AVG_S2": 11.66
+ },
+ {
+   "Name": "251 -  ZAOUI  ANFEL",
+   "SE": 0,
+   "THL": 4.75,
+   "BDD": 1.45,
+   "Réseaux": 1.23,
+   "DEV": 0.3,
+   "POO": 2,
+   "ENG": 16,
+   "AVG_S2": 2.38
+ },
+ {
+   "Name": "252 -  ZAZKAD  AICHA",
+   "SE": 2.37,
+   "THL": 4.45,
+   "BDD": 6.7,
+   "Réseaux": 5.85,
+   "DEV": 5.7,
+   "POO": 12.5,
+   "ENG": 13,
+   "AVG_S2": 6.44
+ },
+ {
+   "Name": "253 -  ZEGHBA  LOUBNA",
+   "SE": 2.4,
+   "THL": 3.25,
+   "BDD": 6.3,
+   "Réseaux": 4.15,
+   "DEV": 4.7,
+   "POO": 9.3,
+   "ENG": 4,
+   "AVG_S2": 4.82
+ },
+ {
+   "Name": "254 -  ZEGHOUGH  YAHIA",
+   "SE": 2.8,
+   "THL": 4.7,
+   "BDD": 14.3,
+   "Réseaux": 8.5,
+   "DEV": 13.2,
+   "POO": 15.2,
+   "ENG": 17,
+   "AVG_S2": 10
+ },
+ {
+   "Name": "255 -  ZELLAGUI  SAFWAN",
+   "SE": 10.65,
+   "THL": 6.1,
+   "BDD": 17,
+   "Réseaux": 9.2,
+   "DEV": 13.3,
+   "POO": 15.8,
+   "ENG": 18,
+   "AVG_S2": 12.43
+ },
+ {
+   "Name": "256 -  ZEMIH  BRAHIM",
+   "SE": 6.83,
+   "THL": 8.1,
+   "BDD": 13.7,
+   "Réseaux": 9.8,
+   "DEV": 8.4,
+   "POO": 10,
+   "ENG": 10.5,
+   "AVG_S2": 9.66
+ },
+ {
+   "Name": "257 -  ZIANE  Aya",
+   "SE": 2.65,
+   "THL": 4.55,
+   "BDD": 3.95,
+   "Réseaux": 5.15,
+   "DEV": 9.7,
+   "POO": 11.8,
+   "ENG": 10,
+   "AVG_S2": 6.08
+ },
+ {
+   "Name": "258 -  ZIANI  RYM",
+   "SE": 8.36,
+   "THL": 11.9,
+   "BDD": 11.65,
+   "Réseaux": 11,
+   "DEV": 16.1,
+   "POO": 18.35,
+   "ENG": 18.5,
+   "AVG_S2": 12.77
+ },
+ {
+   "Name": "259 -  ZIAZIA  Wail mounib",
+   "SE": 3.93,
+   "THL": 9.7,
+   "BDD": 13.05,
+   "Réseaux": 7.9,
+   "DEV": 15.5,
+   "POO": 18.05,
+   "ENG": 9.5,
+   "AVG_S2": 10.67
+ },
+ {
+   "Name": "260 -  ZIDANI  Ilhem",
+   "SE": 3.9,
+   "THL": 2.95,
+   "BDD": 6.25,
+   "Réseaux": 3.8,
+   "DEV": 8.2,
+   "POO": 2.8,
+   "ENG": 5,
+   "AVG_S2": 4.67
+ },
+ {
+   "Name": "261 -  ZIDELKHIL  HANA",
+   "SE": 3.65,
+   "THL": 5.3,
+   "BDD": 8.65,
+   "Réseaux": 12.27,
+   "DEV": 10.8,
+   "POO": 18.9,
+   "ENG": 13.5,
+   "AVG_S2": 9.83
+ },
+ {
+   "Name": "262 -  ZIDELKHIL  YOUSRA",
+   "SE": 8.88,
+   "THL": 9.2,
+   "BDD": 11.5,
+   "Réseaux": 14.35,
+   "DEV": 13.65,
+   "POO": 18.9,
+   "ENG": 19,
+   "AVG_S2": 12.92
+ },
+ {
+   "Name": "263 -  ZIKEM  RIDHA",
+   "SE": 3.66,
+   "THL": 8.6,
+   "BDD": 11.7,
+   "Réseaux": 10.1,
+   "DEV": 5.2,
+   "POO": 11.6,
+   "ENG": 15,
+   "AVG_S2": 8.89
+ },
+ {
+   "Name": "264 -  ZIOUCHE  BOUTHAINA",
+   "SE": 2.5,
+   "THL": 7.8,
+   "BDD": 10.8,
+   "Réseaux": 3.75,
+   "DEV": 9.6,
+   "POO": 10.65,
+   "ENG": 18,
+   "AVG_S2": 7.83
+ },
+ {
+   "Name": "265 -  ZOUBIRI  CHAHINEZ",
+   "SE": 6.28,
+   "THL": 8.4,
+   "BDD": 12.6,
+   "Réseaux": 10.15,
+   "DEV": 10.5,
+   "POO": 14.65,
+   "ENG": 17.5,
+   "AVG_S2": 10.73
+ }
+]
+    ;
+  
+   
+    let currentSort = null;
+    let originalData = [...studentData];
+    let filteredData = [...studentData];
+    const headers = Object.keys(studentData[0]);
+
+    function createButtons() {
+      const controls = document.getElementById("controls");
+      headers.slice(1).forEach(header => {
+        const btn = document.createElement("button");
+        btn.textContent = header;
+        btn.dataset.sorted = "false";
+        btn.onclick = () => toggleSort(header, btn);
+        if (header === "AVG") btn.classList.add("avg-button");
+        controls.appendChild(btn);
+      });
+    }
+
+    function toggleSort(column, btn) {
+      if (currentSort === column && btn.dataset.sorted === "true") {
+        btn.dataset.sorted = "false";
+        currentSort = null;
+        displayTable(filteredData);
+      } else {
+        document.querySelectorAll("button").forEach(b => b.dataset.sorted = "false");
+        btn.dataset.sorted = "true";
+        currentSort = column;
+        const sorted = [...filteredData].sort((a, b) => b[column] - a[column]);
+        displayTable(sorted, column);
+      }
+    }
+
+    function displayTable(data, sortedColumn = null) {
+      const table = document.getElementById("dataTable");
+      const noResultsDiv = document.getElementById("noResults");
+      table.innerHTML = "";
+
+      if (data.length === 0) {
+        noResultsDiv.style.display = "block";
+        return;
+      } else {
+        noResultsDiv.style.display = "none";
+      }
+
+      // Create table header
+      const thead = document.createElement("thead");
+      const headerRow = document.createElement("tr");
+      headerRow.appendChild(document.createElement("th"));
+      headers.forEach(header => {
+        const th = document.createElement("th");
+        th.textContent = header;
+        headerRow.appendChild(th);
+      });
+      thead.appendChild(headerRow);
+      table.appendChild(thead);
+
+      const tbody = document.createElement("tbody");
+
+      // Calculate averages for students with AVG > 10
+      const above10Students = data.filter(student => student.AVG_S2 >= 10);
+      if (above10Students.length > 0) {
+        const above10AvgRow = document.createElement("tr");
+        above10AvgRow.className = "average-above-10-row";
+        const above10Label = document.createElement("td");
+        above10Label.textContent = `AVG (Students >10,Nbr of student=${above10Students.length})`;
+        above10AvgRow.appendChild(above10Label);
+
+        headers.forEach(header => {
+          const td = document.createElement("td");
+          if (header === "Name") {
+            td.textContent = "";
+          } else {
+            const values = above10Students.map(d => d[header]);
+            const average = (values.reduce((acc, val) => acc + val, 0) / values.length).toFixed(2);
+            td.textContent = average;
+          }
+          above10AvgRow.appendChild(td);
+        });
+        tbody.appendChild(above10AvgRow);
+      }
+
+      // Calculate overall averages
+      const averageRow = document.createElement("tr");
+      averageRow.className = "average-row";
+      const avgLabel = document.createElement("td");
+      avgLabel.textContent = `AVG (All, Nbr of student =${data.length})`;
+      averageRow.appendChild(avgLabel);
+
+      headers.forEach(header => {
+        const td = document.createElement("td");
+        if (header === "Name") {
+          td.textContent = "";
+        } else {
+          const values = data.map(d => d[header]);
+          const average = (values.reduce((acc, val) => acc + val, 0) / values.length).toFixed(2);
+          td.textContent = average;
+        }
+        averageRow.appendChild(td);
+      });
+      tbody.appendChild(averageRow);
+
+      // Add student data rows
+      let maxValue = sortedColumn ? Math.max(...data.map(d => d[sortedColumn])) : null;
+
+      data.forEach((row, index) => {
+        const tr = document.createElement("tr");
+        const rankTd = document.createElement("td");
+        rankTd.textContent = sortedColumn ? index + 1 : "-";
+        rankTd.className = sortedColumn ? "sorted-rank" : "";
+        tr.appendChild(rankTd);
+
+        headers.forEach(header => {
+          const td = document.createElement("td");
+          td.textContent = row[header];
+          if (sortedColumn && header === sortedColumn) {
+            td.classList.add("highlight-column");
+            if (row[header] === maxValue) {
+              td.classList.add("highest-score");
+            }
+          }
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+
+      table.appendChild(tbody);
+    }
+
+    function handleSearch() {
+      const input = document.getElementById("searchInput").value.toLowerCase();
+      filteredData = originalData.filter(student => 
+        student.Name.toLowerCase().includes(input)
+      );
+      displayTable(filteredData);
+    }
+
+    createButtons();
+    displayTable(studentData);
+  </script>
+</body>
+</html>

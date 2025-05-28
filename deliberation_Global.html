@@ -1,0 +1,2064 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+  <meta charset="UTF-8">
+  <title>Student Grades Viewer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&family=Montserrat:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    
+.average-above-10-row td:first-child {
+  font-family: 'Roboto', sans-serif !important;
+  font-weight: 100 !important;
+  size: 2px !important;
+  font-size: small !important;
+}
+ 
+      .navigation-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 2rem;
+      gap: 1rem;
+    }
+    /* Add this to your CSS */
+.average-above-10-row td:first-child,
+.average-row td:first-child {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 100; /* or 200 for slightly thicker */
+  letter-spacing: 0.5px;
+}
+    
+    .nav-button {
+      padding: 12px 24px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: var(--border-radius);
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: var(--box-shadow);
+      font-family: 'Montserrat', sans-serif;
+      text-decoration: none;
+      text-align: center;
+    }
+    
+    .nav-button:hover {
+      background-color: var(--secondary);
+      transform: translateY(-2px);
+    }
+    
+    .nav-button.active {
+      background-color: var(--accent);
+      font-weight: 600;
+    }
+    :root {
+      --primary: #4361ee;
+      --secondary: #3f37c9;
+      --accent: #f72585;
+      --light: #f8f9fa;
+      --dark: #212529;
+      --success: #4cc9f0;
+      --warning: #f8961e;
+      --danger: #ef233c;
+      --border-radius: 12px;
+      --box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+      --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+    
+    body {
+      font-family: 'Poppins', sans-serif;
+      padding: 2rem;
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      color: var(--dark);
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    h2 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 2.5rem;
+      margin-bottom: 1.5rem;
+      text-align: center;
+      color: var(--secondary);
+      position: relative;
+      display: inline-block;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    h2::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      border-radius: 2px;
+    }
+
+    .search-container {
+      text-align: center;
+      margin-bottom: 2rem;
+      position: relative;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      max-width: 500px;
+      padding: 12px 20px;
+      font-size: 1rem;
+      border: none;
+      border-radius: var(--border-radius);
+      background-color: white;
+      box-shadow: var(--box-shadow);
+      transition: var(--transition);
+      border: 2px solid transparent;
+    }
+
+    input[type="text"]:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+    }
+
+    input[type="text"]::placeholder {
+      color: #adb5bd;
+    }
+
+    .button-container {
+      text-align: center;
+      margin-bottom: 2rem;
+      background: white;
+      padding: 1.5rem;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+    }
+
+    .sort-label {
+      display: block;
+      margin-bottom: 1rem;
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: var(--secondary);
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    button {
+      margin: 0.5rem;
+      padding: 10px 20px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 50px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      font-family: 'Montserrat', sans-serif;
+      letter-spacing: 0.5px;
+    }
+
+    button.avg-button {
+      background: var(--accent) !important;
+    }
+
+    button:hover {
+      background-color: var(--secondary);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 2rem;
+      background-color: white;
+      box-shadow: var(--box-shadow);
+      border-radius: var(--border-radius);
+      overflow: hidden;
+      transition: var(--transition);
+    }
+
+    th, td {
+      padding: 15px;
+      text-align: center;
+      border-bottom: 1px solid #e9ecef;
+    }
+
+    th {
+      background-color: var(--primary);
+      color: white;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.85rem;
+      letter-spacing: 1px;
+      position: sticky;
+      top: 0;
+    }
+
+    tr:hover {
+      background-color: #f8f9fa;
+    }
+
+    td.sorted-rank {
+      font-weight: bold;
+      color: var(--danger);
+      background-color: rgba(239, 35, 60, 0.1);
+    }
+
+    td.highlight-column {
+      background-color: rgba(76, 201, 240, 0.1) !important;
+      font-weight: 600;
+    }
+
+    td.highest-score {
+      background-color: rgba(239, 35, 60, 0.1) !important;
+      color: var(--danger);
+      font-weight: bold;
+      position: relative;
+    }
+
+    td.highest-score::after {
+      content: '★';
+      position: absolute;
+      right: 5px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--danger);
+      font-size: 0.8rem;
+    }
+
+    .average-row td {
+      background-color: #f1f8ff;
+      font-weight: bold;
+      border-bottom: 2px solid var(--primary);
+      color: var(--secondary);
+      font-size: 1.05rem;
+    }
+
+    .average-above-10-row td {
+      background-color: #e6f7e6;
+      font-weight: bold;
+      border-bottom: 2px solid #4CAF50;
+      color: #2E7D32;
+      font-size: 1.05rem;
+    }
+
+    .average-row td:first-child,
+    .average-above-10-row td:first-child {
+      background-color: var(--primary);
+      color: white;
+      font-weight: 600;
+    }
+
+    .average-above-10-row td:first-child {
+      background-color: #4CAF50;
+    }
+
+    .no-results {
+      text-align: center;
+      font-size: 1.2rem;
+      color: #6c757d;
+      margin-top: 2rem;
+      font-weight: 500;
+      padding: 2rem;
+      background: white;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      body {
+        padding: 1rem;
+      }
+      
+      h2 {
+        font-size: 1.8rem;
+      }
+      
+      .button-container {
+        padding: 1rem;
+      }
+      
+      button {
+        margin: 0.3rem;
+        padding: 8px 15px;
+        font-size: 0.9rem;
+      }
+      
+      th, td {
+        padding: 10px 5px;
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+     
+    <div class="navigation-container">
+      <a href="SORT_S1.html" class="nav-button">Semester 1</a>
+      <a href="SORT_S2.html" class="nav-button">Semester 2</a>
+      <a href="deliberation_Global.html" class="nav-button active">Global Average</a>
+    </div>
+    <h2>📊 Student Grades Dashboard</h2>
+    <div class="search-container">
+      <input type="text" id="searchInput" placeholder="🔍 Search student name..." oninput="handleSearch()" />
+    </div>
+    <div class="button-container" id="controls">
+      <span class="sort-label">Sort by Module</span>
+    </div>
+    <table id="dataTable"></table>
+    <div id="noResults" class="no-results" style="display: none;">
+      <p>No matching students found</p>
+      <p style="font-size: 3rem;">😕</p>
+    </div>
+  </div>
+
+  <script>
+    const studentData = [
+ {
+   "Name": "ABDELAZIZ Souleyman",
+   "AVG_S1": 9,
+   "AVG_S2": 0.99,
+   "AVG": 5
+ },
+ {
+   "Name": "ABDELHAFID Omayma",
+   "AVG_S1": 8.51,
+   "AVG_S2": 9.76,
+   "AVG": 9.14
+ },
+ {
+   "Name": "ABDELKEBIR Mohammed\nabdelwadoud",
+   "AVG_S1": 6.49,
+   "AVG_S2": 4.22,
+   "AVG": 5.36
+ },
+ {
+   "Name": "ABDELLI Mohammed amine",
+   "AVG_S1": 1.41,
+   "AVG_S2": 0.78,
+   "AVG": 1.1
+ },
+ {
+   "Name": "ACHOUR Manar",
+   "AVG_S1": 8.4,
+   "AVG_S2": 8.9,
+   "AVG": 8.65
+ },
+ {
+   "Name": "ACHOURI Abdessamed",
+   "AVG_S1": 9.78,
+   "AVG_S2": 11.97,
+   "AVG": 10.88
+ },
+ {
+   "Name": "ACHOURI Nassima",
+   "AVG_S1": 8.03,
+   "AVG_S2": 10.15,
+   "AVG": 9.09
+ },
+ {
+   "Name": "ADEL Mohammed amine",
+   "AVG_S1": 0.23,
+   "AVG_S2": 0,
+   "AVG": 0.12
+ },
+ {
+   "Name": "ADJIMI Ahmed yacine",
+   "AVG_S1": 9.75,
+   "AVG_S2": 10.04,
+   "AVG": 9.9
+ },
+ {
+   "Name": "AIB Abderrezak",
+   "AVG_S1": 5.79,
+   "AVG_S2": 5.74,
+   "AVG": 5.77
+ },
+ {
+   "Name": "AISSANI Asma",
+   "AVG_S1": 8.33,
+   "AVG_S2": 5.07,
+   "AVG": 6.7
+ },
+ {
+   "Name": "ALOUANI Meryem",
+   "AVG_S1": 10.45,
+   "AVG_S2": 7.54,
+   "AVG": 9
+ },
+ {
+   "Name": "AMARA Abla",
+   "AVG_S1": 9.17,
+   "AVG_S2": 7.81,
+   "AVG": 8.49
+ },
+ {
+   "Name": "AMEUR Akram abderrahim",
+   "AVG_S1": 7.81,
+   "AVG_S2": 5.53,
+   "AVG": 6.67
+ },
+ {
+   "Name": "AMMOUR Meriem",
+   "AVG_S1": 9.17,
+   "AVG_S2": 9.63,
+   "AVG": 9.4
+ },
+ {
+   "Name": "AOUINA Ghoufran zoubida",
+   "AVG_S1": 7.63,
+   "AVG_S2": 1.96,
+   "AVG": 4.8
+ },
+ {
+   "Name": "AOUINA Ibtissam",
+   "AVG_S1": 10.08,
+   "AVG_S2": 10.81,
+   "AVG": 10.45
+ },
+ {
+   "Name": "ASSELI Ayoub",
+   "AVG_S1": 8.15,
+   "AVG_S2": 7.69,
+   "AVG": 7.92
+ },
+ {
+   "Name": "ASSELI Chouaib",
+   "AVG_S1": 6.07,
+   "AVG_S2": 6.6,
+   "AVG": 6.34
+ },
+ {
+   "Name": "ATAMNIA Khouloud",
+   "AVG_S1": 11.6,
+   "AVG_S2": 11.34,
+   "AVG": 11.47
+ },
+ {
+   "Name": "ATTOUI Abir",
+   "AVG_S1": 9.6,
+   "AVG_S2": 9.4,
+   "AVG": 9.5
+ },
+ {
+   "Name": "AZZOUZ Ayoub",
+   "AVG_S1": 7.33,
+   "AVG_S2": 8.18,
+   "AVG": 7.76
+ },
+ {
+   "Name": "AZZOUZ Wail",
+   "AVG_S1": 5.51,
+   "AVG_S2": 4.16,
+   "AVG": 4.84
+ },
+ {
+   "Name": "BAALI Mohamed cheikhe",
+   "AVG_S1": 6.39,
+   "AVG_S2": 5.7,
+   "AVG": 6.05
+ },
+ {
+   "Name": "BAALI Mohammedabdelmoumin",
+   "AVG_S1": 7.21,
+   "AVG_S2": 6.68,
+   "AVG": 6.95
+ },
+ {
+   "Name": "BACHAR Ikram",
+   "AVG_S1": 8.41,
+   "AVG_S2": 7.8,
+   "AVG": 8.11
+ },
+ {
+   "Name": "BACHIRI Soundous",
+   "AVG_S1": 6.7,
+   "AVG_S2": 5.27,
+   "AVG": 5.99
+ },
+ {
+   "Name": "BADOUCHE Qossey",
+   "AVG_S1": 4.6,
+   "AVG_S2": 6.56,
+   "AVG": 5.58
+ },
+ {
+   "Name": "BAKACHE Hanine",
+   "AVG_S1": 3.72,
+   "AVG_S2": 4.62,
+   "AVG": 4.17
+ },
+ {
+   "Name": "BAKRI Mohammed el bachir",
+   "AVG_S1": 11.74,
+   "AVG_S2": 12.39,
+   "AVG": 12.07
+ },
+ {
+   "Name": "BALBAL Abderrahmen mourtadha",
+   "AVG_S1": 3.42,
+   "AVG_S2": 0,
+   "AVG": 1.71
+ },
+ {
+   "Name": "BARKATI Aya",
+   "AVG_S1": 9.9,
+   "AVG_S2": 11.43,
+   "AVG": 10.67
+ },
+ {
+   "Name": "BELAADA Mohammed elamin",
+   "AVG_S1": 10.32,
+   "AVG_S2": 10.03,
+   "AVG": 10.18
+ },
+ {
+   "Name": "BELBEY Nassim amine",
+   "AVG_S1": 10.64,
+   "AVG_S2": 11.9,
+   "AVG": 11.27
+ },
+ {
+   "Name": "BELFAR Douaa",
+   "AVG_S1": 14.69,
+   "AVG_S2": 15.18,
+   "AVG": 14.94
+ },
+ {
+   "Name": "BELLI Fatima zohra",
+   "AVG_S1": 8.6,
+   "AVG_S2": 10.17,
+   "AVG": 9.39
+ },
+ {
+   "Name": "BELOUADAH Ahmed  ameur",
+   "AVG_S1": 7.56,
+   "AVG_S2": 7.25,
+   "AVG": 7.41
+ },
+ {
+   "Name": "BELOUADAH Aya",
+   "AVG_S1": 8.25,
+   "AVG_S2": 9.02,
+   "AVG": 8.64
+ },
+ {
+   "Name": "BENABDERRAHMANE Saleh ayoub",
+   "AVG_S1": 11.14,
+   "AVG_S2": 11.31,
+   "AVG": 11.23
+ },
+ {
+   "Name": "BENACHOUR Salima",
+   "AVG_S1": 10.18,
+   "AVG_S2": 10.98,
+   "AVG": 10.58
+ },
+ {
+   "Name": "BENAISSI Mahammed said",
+   "AVG_S1": 9.92,
+   "AVG_S2": 11.46,
+   "AVG": 10.69
+ },
+ {
+   "Name": "BENAISSOU Mohammed idris",
+   "AVG_S1": 8.62,
+   "AVG_S2": 7.81,
+   "AVG": 8.22
+ },
+ {
+   "Name": "BENALIA Loubna",
+   "AVG_S1": 0.39,
+   "AVG_S2": 5.25,
+   "AVG": 2.82
+ },
+ {
+   "Name": "BEN AMARA Fatima zohra",
+   "AVG_S1": 9.47,
+   "AVG_S2": 11.96,
+   "AVG": 10.72
+ },
+ {
+   "Name": "BEN BACHIR Nour eddine",
+   "AVG_S1": 13.08,
+   "AVG_S2": 11.56,
+   "AVG": 12.32
+ },
+ {
+   "Name": "BENBOUDINA Tarik",
+   "AVG_S1": 9.22,
+   "AVG_S2": 11.73,
+   "AVG": 10.48
+ },
+ {
+   "Name": "BEN CHIKH Nor el houda",
+   "AVG_S1": 8.78,
+   "AVG_S2": 11.78,
+   "AVG": 10.28
+ },
+ {
+   "Name": "BENDJEDDOU Mohammed imadeddine",
+   "AVG_S1": 8.35,
+   "AVG_S2": 7.09,
+   "AVG": 7.72
+ },
+ {
+   "Name": "BENGANA Younes",
+   "AVG_S1": 5.92,
+   "AVG_S2": 5.33,
+   "AVG": 5.63
+ },
+ {
+   "Name": "BENGASMIA Anes",
+   "AVG_S1": 11.07,
+   "AVG_S2": 11.47,
+   "AVG": 11.27
+ },
+ {
+   "Name": "BEN GHERAB Mohammed",
+   "AVG_S1": 8.4,
+   "AVG_S2": 4.92,
+   "AVG": 6.66
+ },
+ {
+   "Name": "BEN GUENNA Mohammed",
+   "AVG_S1": 6.61,
+   "AVG_S2": 7.36,
+   "AVG": 6.99
+ },
+ {
+   "Name": "BENGUESMIA Loubna",
+   "AVG_S1": 11.61,
+   "AVG_S2": 12.65,
+   "AVG": 12.13
+ },
+ {
+   "Name": "BENHALIMA Mohammed",
+   "AVG_S1": 8.9,
+   "AVG_S2": 11.18,
+   "AVG": 10.04
+ },
+ {
+   "Name": "BEN HAMIDOUCHE Manar",
+   "AVG_S1": 9.3,
+   "AVG_S2": 13.76,
+   "AVG": 11.53
+ },
+ {
+   "Name": "BENKOUIDER Abdelhakim",
+   "AVG_S1": 3.85,
+   "AVG_S2": 0,
+   "AVG": 1.93
+ },
+ {
+   "Name": "BENLATRECHE Mariya",
+   "AVG_S1": 10.06,
+   "AVG_S2": 9.82,
+   "AVG": 9.94
+ },
+ {
+   "Name": "BENMOHAMMED Firas elhadj",
+   "AVG_S1": 11.18,
+   "AVG_S2": 10.02,
+   "AVG": 10.6
+ },
+ {
+   "Name": "BENRABAH Yacine",
+   "AVG_S1": 10.46,
+   "AVG_S2": 7.68,
+   "AVG": 9.07
+ },
+ {
+   "Name": "BEN SEID Khoula",
+   "AVG_S1": 9.63,
+   "AVG_S2": 11.28,
+   "AVG": 10.46
+ },
+ {
+   "Name": "BENSLIMANE Inasse",
+   "AVG_S1": 10.33,
+   "AVG_S2": 8.56,
+   "AVG": 9.45
+ },
+ {
+   "Name": "BENTALLAH Dounya amane",
+   "AVG_S1": 9,
+   "AVG_S2": 7.72,
+   "AVG": 8.36
+ },
+ {
+   "Name": "BENTATA Abdellatif",
+   "AVG_S1": 6.44,
+   "AVG_S2": 6.43,
+   "AVG": 6.44
+ },
+ {
+   "Name": "BENTOUMI Aden aicha",
+   "AVG_S1": 11.52,
+   "AVG_S2": 13.16,
+   "AVG": 12.34
+ },
+ {
+   "Name": "BENYAHIA Firdaws amina",
+   "AVG_S1": 8.28,
+   "AVG_S2": 8.76,
+   "AVG": 8.52
+ },
+ {
+   "Name": "BENYETTOU Rayane",
+   "AVG_S1": 10.32,
+   "AVG_S2": 10.36,
+   "AVG": 10.34
+ },
+ {
+   "Name": "BENZAHIA Selsabil",
+   "AVG_S1": 10.02,
+   "AVG_S2": 11.78,
+   "AVG": 10.9
+ },
+ {
+   "Name": "BETKA Loubna",
+   "AVG_S1": 9.61,
+   "AVG_S2": 9.1,
+   "AVG": 9.36
+ },
+ {
+   "Name": "BLIZAK Amina",
+   "AVG_S1": 9.84,
+   "AVG_S2": 10.49,
+   "AVG": 10.17
+ },
+ {
+   "Name": "BOUAICHA Nor elyakin",
+   "AVG_S1": 8.24,
+   "AVG_S2": 10.09,
+   "AVG": 9.17
+ },
+ {
+   "Name": "BOUALI Anouar bouchra",
+   "AVG_S1": 8.73,
+   "AVG_S2": 8.7,
+   "AVG": 8.72
+ },
+ {
+   "Name": "BOUBAKRI Aya",
+   "AVG_S1": 9.91,
+   "AVG_S2": 10.11,
+   "AVG": 10.01
+ },
+ {
+   "Name": "BOUBAKRI Hafida",
+   "AVG_S1": 10.02,
+   "AVG_S2": 6.9,
+   "AVG": 8.46
+ },
+ {
+   "Name": "BOUCHAREB Asma",
+   "AVG_S1": 9.89,
+   "AVG_S2": 8.9,
+   "AVG": 9.4
+ },
+ {
+   "Name": "BOUCHAREB Salima",
+   "AVG_S1": 10.36,
+   "AVG_S2": 8.16,
+   "AVG": 9.26
+ },
+ {
+   "Name": "BOUDJELLAL Cheyma",
+   "AVG_S1": 12.36,
+   "AVG_S2": 11.89,
+   "AVG": 12.13
+ },
+ {
+   "Name": "BOUDJEMAA Smail louai",
+   "AVG_S1": 10.02,
+   "AVG_S2": 9.22,
+   "AVG": 9.62
+ },
+ {
+   "Name": "BOUDJOUDI Maria ines",
+   "AVG_S1": 10.56,
+   "AVG_S2": 9.85,
+   "AVG": 10.21
+ },
+ {
+   "Name": "BOUGUERRA Hana",
+   "AVG_S1": 9.85,
+   "AVG_S2": 11.34,
+   "AVG": 10.6
+ },
+ {
+   "Name": "BOUGUERRA Ilyas",
+   "AVG_S1": 5.48,
+   "AVG_S2": 7.28,
+   "AVG": 6.38
+ },
+ {
+   "Name": "BOUKHEDIR Asma",
+   "AVG_S1": 8.43,
+   "AVG_S2": 9.25,
+   "AVG": 8.84
+ },
+ {
+   "Name": "BOUKHENISSA Yassine",
+   "AVG_S1": 7.1,
+   "AVG_S2": 8.77,
+   "AVG": 7.94
+ },
+ {
+   "Name": "BOUMALIA Souheyl",
+   "AVG_S1": 7.54,
+   "AVG_S2": 12.24,
+   "AVG": 9.89
+ },
+ {
+   "Name": "BOUNAB Ouail",
+   "AVG_S1": 6.41,
+   "AVG_S2": 10.3,
+   "AVG": 8.36
+ },
+ {
+   "Name": "BOURAHLA Zoubida",
+   "AVG_S1": 7.94,
+   "AVG_S2": 4.04,
+   "AVG": 5.99
+ },
+ {
+   "Name": "BOUSBA Ilyas ayoub",
+   "AVG_S1": 8.66,
+   "AVG_S2": 9.54,
+   "AVG": 9.1
+ },
+ {
+   "Name": "BOUSBAA Bouchra",
+   "AVG_S1": 6.21,
+   "AVG_S2": 7.05,
+   "AVG": 6.63
+ },
+ {
+   "Name": "BOUSLAH Yousra",
+   "AVG_S1": 9.48,
+   "AVG_S2": 13.09,
+   "AVG": 11.29
+ },
+ {
+   "Name": "BRIKAT Mariya",
+   "AVG_S1": 11.19,
+   "AVG_S2": 9.63,
+   "AVG": 10.41
+ },
+ {
+   "Name": "CHEBABHI Said elmoataz",
+   "AVG_S1": 10.47,
+   "AVG_S2": 10.34,
+   "AVG": 10.41
+ },
+ {
+   "Name": "CHEBILI Nadjoua",
+   "AVG_S1": 10.96,
+   "AVG_S2": 12.11,
+   "AVG": 11.54
+ },
+ {
+   "Name": "CHELALI Walid",
+   "AVG_S1": 8.83,
+   "AVG_S2": 10.37,
+   "AVG": 9.6
+ },
+ {
+   "Name": "CHENEN Asma",
+   "AVG_S1": 11.47,
+   "AVG_S2": 10.54,
+   "AVG": 11.01
+ },
+ {
+   "Name": "CHENNAFI Hamada soufiane",
+   "AVG_S1": 8.57,
+   "AVG_S2": 6.48,
+   "AVG": 7.53
+ },
+ {
+   "Name": "CHERFAOUI Farouk",
+   "AVG_S1": 9.38,
+   "AVG_S2": 8.99,
+   "AVG": 9.19
+ },
+ {
+   "Name": "CHERIFI Ahmed charif",
+   "AVG_S1": 8.31,
+   "AVG_S2": 7.15,
+   "AVG": 7.73
+ },
+ {
+   "Name": "CHIKOUCHE Khawla",
+   "AVG_S1": 8.98,
+   "AVG_S2": 10.05,
+   "AVG": 9.52
+ },
+ {
+   "Name": "CHOUIH Yassine",
+   "AVG_S1": 8.27,
+   "AVG_S2": 10.47,
+   "AVG": 9.37
+ },
+ {
+   "Name": "DAHMANI Wala eddine",
+   "AVG_S1": 9.19,
+   "AVG_S2": 7.41,
+   "AVG": 8.3
+ },
+ {
+   "Name": "DARAF Abdennacer",
+   "AVG_S1": 11.72,
+   "AVG_S2": 12.26,
+   "AVG": 11.99
+ },
+ {
+   "Name": "DEBAB Randa",
+   "AVG_S1": 10.33,
+   "AVG_S2": 10.5,
+   "AVG": 10.42
+ },
+ {
+   "Name": "DERBANE Abdellah",
+   "AVG_S1": 12.23,
+   "AVG_S2": 9.99,
+   "AVG": 11.11
+ },
+ {
+   "Name": "DILMI Chaima",
+   "AVG_S1": 6.12,
+   "AVG_S2": 5.58,
+   "AVG": 5.85
+ },
+ {
+   "Name": "DILMI Firdaws",
+   "AVG_S1": 10.19,
+   "AVG_S2": 9.93,
+   "AVG": 10.06
+ },
+ {
+   "Name": "DJAHEL Akram",
+   "AVG_S1": 0,
+   "AVG_S2": 0.25,
+   "AVG": 0.13
+ },
+ {
+   "Name": "DJAIDJA Abdelmouhimen omar",
+   "AVG_S1": 8.63,
+   "AVG_S2": 4.01,
+   "AVG": 6.32
+ },
+ {
+   "Name": "DJAIDJA Ahmed",
+   "AVG_S1": 6.25,
+   "AVG_S2": 7.24,
+   "AVG": 6.75
+ },
+ {
+   "Name": "DJAIDJA Douaa",
+   "AVG_S1": 9.08,
+   "AVG_S2": 7.99,
+   "AVG": 8.54
+ },
+ {
+   "Name": "DJAIDJA Islam",
+   "AVG_S1": 8.66,
+   "AVG_S2": 8.54,
+   "AVG": 8.6
+ },
+ {
+   "Name": "DJAIDJA Maha",
+   "AVG_S1": 9.23,
+   "AVG_S2": 11.14,
+   "AVG": 10.19
+ },
+ {
+   "Name": "DJALAB Messaoud",
+   "AVG_S1": 9.86,
+   "AVG_S2": 10.54,
+   "AVG": 10.2
+ },
+ {
+   "Name": "DJALAB Mohamed fouad",
+   "AVG_S1": 8.27,
+   "AVG_S2": 8.78,
+   "AVG": 8.53
+ },
+ {
+   "Name": "DJALAB Youcef",
+   "AVG_S1": 6.97,
+   "AVG_S2": 1.98,
+   "AVG": 4.48
+ },
+ {
+   "Name": "DJEGHDALI Aya manar",
+   "AVG_S1": 10.82,
+   "AVG_S2": 11.49,
+   "AVG": 11.16
+ },
+ {
+   "Name": "DJOUIBA Adem",
+   "AVG_S1": 8.16,
+   "AVG_S2": 0.9,
+   "AVG": 4.53
+ },
+ {
+   "Name": "DJOUMAGH Khadidja",
+   "AVG_S1": 7.98,
+   "AVG_S2": 7.35,
+   "AVG": 7.67
+ },
+ {
+   "Name": "DOUDOU  mohammed el amin",
+   "AVG_S1": 10.47,
+   "AVG_S2": 8.88,
+   "AVG": 9.68
+ },
+ {
+   "Name": "DOUIBI Dalal",
+   "AVG_S1": 8.15,
+   "AVG_S2": 6.5,
+   "AVG": 7.33
+ },
+ {
+   "Name": "FALI Moufida",
+   "AVG_S1": 8.45,
+   "AVG_S2": 9.11,
+   "AVG": 8.78
+ },
+ {
+   "Name": "FERAHTIA Islam",
+   "AVG_S1": 10.49,
+   "AVG_S2": 1.4,
+   "AVG": 5.95
+ },
+ {
+   "Name": "FERHATI Azzeddine",
+   "AVG_S1": 10.29,
+   "AVG_S2": 12.44,
+   "AVG": 11.37
+ },
+ {
+   "Name": "GHERABI Ahmed sameh",
+   "AVG_S1": 10.22,
+   "AVG_S2": 12.51,
+   "AVG": 11.37
+ },
+ {
+   "Name": "GHERZOULI Dounya",
+   "AVG_S1": 7.17,
+   "AVG_S2": 7.1,
+   "AVG": 7.14
+ },
+ {
+   "Name": "GOUARI Tariq",
+   "AVG_S1": 3.29,
+   "AVG_S2": 4.99,
+   "AVG": 4.14
+ },
+ {
+   "Name": "GOUFFI Nadjah",
+   "AVG_S1": 9.32,
+   "AVG_S2": 6.92,
+   "AVG": 8.12
+ },
+ {
+   "Name": "GOULAILIZ Hana",
+   "AVG_S1": 11.12,
+   "AVG_S2": 11.28,
+   "AVG": 11.2
+ },
+ {
+   "Name": "GUELMINE Faiz abdessalame",
+   "AVG_S1": 5.54,
+   "AVG_S2": 10.26,
+   "AVG": 7.9
+ },
+ {
+   "Name": "GUENDOUZ Ziyad",
+   "AVG_S1": 8.12,
+   "AVG_S2": 11.95,
+   "AVG": 10.04
+ },
+ {
+   "Name": "GUETTAI Aya",
+   "AVG_S1": 10.92,
+   "AVG_S2": 11.81,
+   "AVG": 11.37
+ },
+ {
+   "Name": "GUETTOUCHE Assala hiyam",
+   "AVG_S1": 0.76,
+   "AVG_S2": 0,
+   "AVG": 0.38
+ },
+ {
+   "Name": "HACHADI Djamila naima",
+   "AVG_S1": 10.7,
+   "AVG_S2": 12.51,
+   "AVG": 11.61
+ },
+ {
+   "Name": "HACHEMI Fatma zohra",
+   "AVG_S1": 8.27,
+   "AVG_S2": 10.09,
+   "AVG": 9.18
+ },
+ {
+   "Name": "HADBAOUI Meriem selsabil",
+   "AVG_S1": 8.86,
+   "AVG_S2": 10.7,
+   "AVG": 9.78
+ },
+ {
+   "Name": "HADERBACHE Nor el imane",
+   "AVG_S1": 5.7,
+   "AVG_S2": 0.87,
+   "AVG": 3.29
+ },
+ {
+   "Name": "HADJI Badra",
+   "AVG_S1": 9.06,
+   "AVG_S2": 7.9,
+   "AVG": 8.48
+ },
+ {
+   "Name": "HAFIDI Anes ben henni",
+   "AVG_S1": 7.53,
+   "AVG_S2": 7.56,
+   "AVG": 7.55
+ },
+ {
+   "Name": "HALIB Yassamine",
+   "AVG_S1": 10.3,
+   "AVG_S2": 11.36,
+   "AVG": 10.83
+ },
+ {
+   "Name": "HALLAB Yaaqoub",
+   "AVG_S1": 8.57,
+   "AVG_S2": 2.07,
+   "AVG": 5.32
+ },
+ {
+   "Name": "HAMDACHE Halima",
+   "AVG_S1": 9.41,
+   "AVG_S2": 10.39,
+   "AVG": 9.9
+ },
+ {
+   "Name": "HAMDANI Rania",
+   "AVG_S1": 8.53,
+   "AVG_S2": 6,
+   "AVG": 7.27
+ },
+ {
+   "Name": "HAMDINI Aroua",
+   "AVG_S1": 8.95,
+   "AVG_S2": 10.38,
+   "AVG": 9.67
+ },
+ {
+   "Name": "HAMMOU Oussama",
+   "AVG_S1": 10.36,
+   "AVG_S2": 6.73,
+   "AVG": 8.55
+ },
+ {
+   "Name": "HAMOUD Choaib",
+   "AVG_S1": 12.84,
+   "AVG_S2": 12.96,
+   "AVG": 12.9
+ },
+ {
+   "Name": "HAMOUDI Ikram",
+   "AVG_S1": 9.14,
+   "AVG_S2": 7.13,
+   "AVG": 8.14
+ },
+ {
+   "Name": "HAMZA Mohammed el amin",
+   "AVG_S1": 4.8,
+   "AVG_S2": 0.48,
+   "AVG": 2.64
+ },
+ {
+   "Name": "HANAFI Ikram",
+   "AVG_S1": 10.19,
+   "AVG_S2": 9.84,
+   "AVG": 10.02
+ },
+ {
+   "Name": "HAROUZ Dina",
+   "AVG_S1": 10.67,
+   "AVG_S2": 9.98,
+   "AVG": 10.33
+ },
+ {
+   "Name": "HASNAOUI Samah",
+   "AVG_S1": 9.57,
+   "AVG_S2": 8.86,
+   "AVG": 9.22
+ },
+ {
+   "Name": "HENNI Zineb",
+   "AVG_S1": 10.51,
+   "AVG_S2": 6.87,
+   "AVG": 8.69
+ },
+ {
+   "Name": "HERAIZ Imadeddine",
+   "AVG_S1": 8.24,
+   "AVG_S2": 10.01,
+   "AVG": 9.13
+ },
+ {
+   "Name": "HERIZI Abdellah amdjed",
+   "AVG_S1": 6.05,
+   "AVG_S2": 0.61,
+   "AVG": 3.33
+ },
+ {
+   "Name": "HERZI Aya",
+   "AVG_S1": 7.91,
+   "AVG_S2": 9.31,
+   "AVG": 8.61
+ },
+ {
+   "Name": "IKHLEF Mohamed lamin",
+   "AVG_S1": 7.08,
+   "AVG_S2": 0,
+   "AVG": 3.54
+ },
+ {
+   "Name": "KABOUYA Elmahdi",
+   "AVG_S1": 8.06,
+   "AVG_S2": 12.17,
+   "AVG": 10.12
+ },
+ {
+   "Name": "KAHOUL Moussaab",
+   "AVG_S1": 5.53,
+   "AVG_S2": 2.15,
+   "AVG": 3.84
+ },
+ {
+   "Name": "KARA Ikram rihem",
+   "AVG_S1": 10.47,
+   "AVG_S2": 9.09,
+   "AVG": 9.78
+ },
+ {
+   "Name": "KASMI Hadil",
+   "AVG_S1": 10.37,
+   "AVG_S2": 10.32,
+   "AVG": 10.35
+ },
+ {
+   "Name": "KHABAT Ikram",
+   "AVG_S1": 7.74,
+   "AVG_S2": 10.49,
+   "AVG": 9.12
+ },
+ {
+   "Name": "KHAOUI Cheima",
+   "AVG_S1": 10.67,
+   "AVG_S2": 9.39,
+   "AVG": 10.03
+ },
+ {
+   "Name": "KHODJA Sabrine",
+   "AVG_S1": 10.16,
+   "AVG_S2": 10.83,
+   "AVG": 10.5
+ },
+ {
+   "Name": "KHODJA Yassamine",
+   "AVG_S1": 7.4,
+   "AVG_S2": 5.97,
+   "AVG": 6.69
+ },
+ {
+   "Name": "KOUIDRI Mohamed",
+   "AVG_S1": 7.97,
+   "AVG_S2": 6.4,
+   "AVG": 7.19
+ },
+ {
+   "Name": "LACEFAR Saba",
+   "AVG_S1": 8.83,
+   "AVG_S2": 8.71,
+   "AVG": 8.77
+ },
+ {
+   "Name": "LADJAL Safia",
+   "AVG_S1": 8.22,
+   "AVG_S2": 10.7,
+   "AVG": 9.46
+ },
+ {
+   "Name": "LAHKDARI Oussama ziane",
+   "AVG_S1": 5.59,
+   "AVG_S2": 6.37,
+   "AVG": 5.98
+ },
+ {
+   "Name": "LALDJI Mohamed bachir",
+   "AVG_S1": 11.31,
+   "AVG_S2": 13.19,
+   "AVG": 12.25
+ },
+ {
+   "Name": "LAOUEDJ Ibrahim elkhalil",
+   "AVG_S1": 10.23,
+   "AVG_S2": 11.7,
+   "AVG": 10.97
+ },
+ {
+   "Name": "LASSELAT Soundous",
+   "AVG_S1": 8.06,
+   "AVG_S2": 6.33,
+   "AVG": 7.2
+ },
+ {
+   "Name": "LATRECHE Azzeddine",
+   "AVG_S1": 8.49,
+   "AVG_S2": 8.64,
+   "AVG": 8.57
+ },
+ {
+   "Name": "LEGHOUIL Douha",
+   "AVG_S1": 8.43,
+   "AVG_S2": 9.39,
+   "AVG": 8.91
+ },
+ {
+   "Name": "LOGRADA Bachra",
+   "AVG_S1": 9.85,
+   "AVG_S2": 10.46,
+   "AVG": 10.16
+ },
+ {
+   "Name": "LORABI Hiba ayatallah",
+   "AVG_S1": 7.51,
+   "AVG_S2": 7.31,
+   "AVG": 7.41
+ },
+ {
+   "Name": "LOUKRIZ Abderraouf",
+   "AVG_S1": 10.44,
+   "AVG_S2": 12.63,
+   "AVG": 11.54
+ },
+ {
+   "Name": "LOUKRIZ Fatima",
+   "AVG_S1": 8.52,
+   "AVG_S2": 7.08,
+   "AVG": 7.8
+ },
+ {
+   "Name": "LOUKRIZ Om el khair",
+   "AVG_S1": 8.21,
+   "AVG_S2": 10.17,
+   "AVG": 9.19
+ },
+ {
+   "Name": "MAAMRI Leila",
+   "AVG_S1": 11.08,
+   "AVG_S2": 12.5,
+   "AVG": 11.79
+ },
+ {
+   "Name": "MADJADI Amira",
+   "AVG_S1": 9.66,
+   "AVG_S2": 7.52,
+   "AVG": 8.59
+ },
+ {
+   "Name": "MAHAMDI Abir",
+   "AVG_S1": 6.76,
+   "AVG_S2": 7.88,
+   "AVG": 7.32
+ },
+ {
+   "Name": "MAHAMMEDI Aya",
+   "AVG_S1": 7.23,
+   "AVG_S2": 6.5,
+   "AVG": 6.87
+ },
+ {
+   "Name": "MAHDADI Samia",
+   "AVG_S1": 12.55,
+   "AVG_S2": 12.59,
+   "AVG": 12.57
+ },
+ {
+   "Name": "MAHDI Imane",
+   "AVG_S1": 7.66,
+   "AVG_S2": 6.71,
+   "AVG": 7.19
+ },
+ {
+   "Name": "MAHROUG Fahd mohammed",
+   "AVG_S1": 11.52,
+   "AVG_S2": 12.07,
+   "AVG": 11.8
+ },
+ {
+   "Name": "MAROUF Younes",
+   "AVG_S1": 9.12,
+   "AVG_S2": 8.51,
+   "AVG": 8.82
+ },
+ {
+   "Name": "MAZARI Elhadj amin",
+   "AVG_S1": 9.75,
+   "AVG_S2": 11.4,
+   "AVG": 10.58
+ },
+ {
+   "Name": "MEBARKI Radouane",
+   "AVG_S1": 7.17,
+   "AVG_S2": 8.06,
+   "AVG": 7.62
+ },
+ {
+   "Name": "MEKIDECHE Abderrahmen",
+   "AVG_S1": 7.56,
+   "AVG_S2": 6.04,
+   "AVG": 6.8
+ },
+ {
+   "Name": "MEKIDECHE Nedjla",
+   "AVG_S1": 9.93,
+   "AVG_S2": 11.06,
+   "AVG": 10.5
+ },
+ {
+   "Name": "MEKKI Amira",
+   "AVG_S1": 11.35,
+   "AVG_S2": 9.35,
+   "AVG": 10.35
+ },
+ {
+   "Name": "MELIANI Dalal",
+   "AVG_S1": 8.95,
+   "AVG_S2": 11.83,
+   "AVG": 10.39
+ },
+ {
+   "Name": "MELIANI Taha el amin",
+   "AVG_S1": 9.39,
+   "AVG_S2": 10.64,
+   "AVG": 10.02
+ },
+ {
+   "Name": "MENAA Sarra",
+   "AVG_S1": 8.58,
+   "AVG_S2": 10,
+   "AVG": 9.29
+ },
+ {
+   "Name": "MERADA Azad",
+   "AVG_S1": 10.26,
+   "AVG_S2": 8.38,
+   "AVG": 9.32
+ },
+ {
+   "Name": "MESSAOUDI Abdelsamad",
+   "AVG_S1": 5.82,
+   "AVG_S2": 5.62,
+   "AVG": 5.72
+ },
+ {
+   "Name": "MESSAOUDI Amira",
+   "AVG_S1": 9.8,
+   "AVG_S2": 12.3,
+   "AVG": 11.05
+ },
+ {
+   "Name": "MESSEGUEM Soheyb",
+   "AVG_S1": 6.2,
+   "AVG_S2": 8.14,
+   "AVG": 7.17
+ },
+ {
+   "Name": "MEZAACHE Mohammed essaid\nelhachemi",
+   "AVG_S1": 9.43,
+   "AVG_S2": 11.69,
+   "AVG": 10.56
+ },
+ {
+   "Name": "MEZRAG Moussa",
+   "AVG_S1": 9.51,
+   "AVG_S2": 10.6,
+   "AVG": 10.06
+ },
+ {
+   "Name": "MIAADI Saloua",
+   "AVG_S1": 9.69,
+   "AVG_S2": 11.17,
+   "AVG": 10.43
+ },
+ {
+   "Name": "MIZI Amira",
+   "AVG_S1": 7.96,
+   "AVG_S2": 11.29,
+   "AVG": 9.63
+ },
+ {
+   "Name": "MOSTAFAOUI Douaa elbatoul",
+   "AVG_S1": 8.21,
+   "AVG_S2": 6.88,
+   "AVG": 7.55
+ },
+ {
+   "Name": "MOUISSAT Khaoula",
+   "AVG_S1": 5.44,
+   "AVG_S2": 5.74,
+   "AVG": 5.59
+ },
+ {
+   "Name": "MOUSSA Kawther",
+   "AVG_S1": 8.96,
+   "AVG_S2": 10.84,
+   "AVG": 9.9
+ },
+ {
+   "Name": "NAOUI Douaa",
+   "AVG_S1": 8.12,
+   "AVG_S2": 5.36,
+   "AVG": 6.74
+ },
+ {
+   "Name": "NASRI Abdelbaqi",
+   "AVG_S1": 9.44,
+   "AVG_S2": 9.51,
+   "AVG": 9.48
+ },
+ {
+   "Name": "NASRI Amin",
+   "AVG_S1": 9.1,
+   "AVG_S2": 4.85,
+   "AVG": 6.98
+ },
+ {
+   "Name": "NECIR Meriem",
+   "AVG_S1": 10.16,
+   "AVG_S2": 13.37,
+   "AVG": 11.77
+ },
+ {
+   "Name": "NIA Imane",
+   "AVG_S1": 8.99,
+   "AVG_S2": 11.54,
+   "AVG": 10.27
+ },
+ {
+   "Name": "OMRI Abderrahmen",
+   "AVG_S1": 8,
+   "AVG_S2": 7.55,
+   "AVG": 7.78
+ },
+ {
+   "Name": "OUADDAH Abdelbari",
+   "AVG_S1": 2.89,
+   "AVG_S2": 3.19,
+   "AVG": 3.04
+ },
+ {
+   "Name": "OUGHNIA Manar",
+   "AVG_S1": 10.74,
+   "AVG_S2": 12.94,
+   "AVG": 11.84
+ },
+ {
+   "Name": "OULD LAZAZI Mohammed hocine",
+   "AVG_S1": 5.08,
+   "AVG_S2": 7.41,
+   "AVG": 6.25
+ },
+ {
+   "Name": "OULD TOUMI Ahmed",
+   "AVG_S1": 11.93,
+   "AVG_S2": 14.28,
+   "AVG": 13.11
+ },
+ {
+   "Name": "OUSSAIDENE Abdelmalek mehdi",
+   "AVG_S1": 3.16,
+   "AVG_S2": 0,
+   "AVG": 1.58
+ },
+ {
+   "Name": "RABHI Ahmed azeddine",
+   "AVG_S1": 0.84,
+   "AVG_S2": 0,
+   "AVG": 0.42
+ },
+ {
+   "Name": "RAHMANI Nabil",
+   "AVG_S1": 9.87,
+   "AVG_S2": 11.25,
+   "AVG": 10.56
+ },
+ {
+   "Name": "REDAOUI Malak",
+   "AVG_S1": 12.09,
+   "AVG_S2": 9.77,
+   "AVG": 10.93
+ },
+ {
+   "Name": "REZGUI Nour elhouda",
+   "AVG_S1": 7.11,
+   "AVG_S2": 6.96,
+   "AVG": 7.04
+ },
+ {
+   "Name": "REZIGAT Zakarya",
+   "AVG_S1": 9.19,
+   "AVG_S2": 12.61,
+   "AVG": 10.9
+ },
+ {
+   "Name": "SAADA Aya qatr en nada",
+   "AVG_S1": 6.07,
+   "AVG_S2": 5.96,
+   "AVG": 6.02
+ },
+ {
+   "Name": "SAADI Cheker allah",
+   "AVG_S1": 9.26,
+   "AVG_S2": 8.75,
+   "AVG": 9.01
+ },
+ {
+   "Name": "SAHRAOUI Nasreddine",
+   "AVG_S1": 11.9,
+   "AVG_S2": 11.22,
+   "AVG": 11.56
+ },
+ {
+   "Name": "SAIDANI Abdelbasset abdeldjalil",
+   "AVG_S1": 7.85,
+   "AVG_S2": 9.36,
+   "AVG": 8.61
+ },
+ {
+   "Name": "SAIDI Zoubeyda",
+   "AVG_S1": 9.84,
+   "AVG_S2": 9.93,
+   "AVG": 9.89
+ },
+ {
+   "Name": "SAILAA Mohammed radhwen",
+   "AVG_S1": 6.79,
+   "AVG_S2": 6.85,
+   "AVG": 6.82
+ },
+ {
+   "Name": "SALMI Qwider abdelmoumin",
+   "AVG_S1": 0.26,
+   "AVG_S2": 0.25,
+   "AVG": 0.26
+ },
+ {
+   "Name": "SAOUDI Khawla",
+   "AVG_S1": 9.83,
+   "AVG_S2": 8.2,
+   "AVG": 9.02
+ },
+ {
+   "Name": "SAOUDI Thebat",
+   "AVG_S1": 9.75,
+   "AVG_S2": 9.19,
+   "AVG": 9.47
+ },
+ {
+   "Name": "SASSAOUI Djamila",
+   "AVG_S1": 8.78,
+   "AVG_S2": 5.49,
+   "AVG": 7.14
+ },
+ {
+   "Name": "SAYHI Zineb",
+   "AVG_S1": 9.07,
+   "AVG_S2": 7.83,
+   "AVG": 8.45
+ },
+ {
+   "Name": "SEBAA Yacine",
+   "AVG_S1": 7.56,
+   "AVG_S2": 6.05,
+   "AVG": 6.81
+ },
+ {
+   "Name": "SEGHIOUR Lina mariya",
+   "AVG_S1": 13.22,
+   "AVG_S2": 13.54,
+   "AVG": 13.38
+ },
+ {
+   "Name": "SENINA Souha",
+   "AVG_S1": 10.95,
+   "AVG_S2": 11.72,
+   "AVG": 11.34
+ },
+ {
+   "Name": "SERRAI Dounya",
+   "AVG_S1": 7.18,
+   "AVG_S2": 5.09,
+   "AVG": 6.14
+ },
+ {
+   "Name": "TABI Ibtissam",
+   "AVG_S1": 7.24,
+   "AVG_S2": 5.55,
+   "AVG": 6.4
+ },
+ {
+   "Name": "TABI Nour eddine mohammed",
+   "AVG_S1": 3.76,
+   "AVG_S2": 3.12,
+   "AVG": 3.44
+ },
+ {
+   "Name": "TAHMI Seyf eddine",
+   "AVG_S1": 7.8,
+   "AVG_S2": 6.66,
+   "AVG": 7.23
+ },
+ {
+   "Name": "TAIBI Mohamed baha eddine",
+   "AVG_S1": 5.5,
+   "AVG_S2": 7.09,
+   "AVG": 6.3
+ },
+ {
+   "Name": "TALBI Ikram",
+   "AVG_S1": 8.94,
+   "AVG_S2": 9.04,
+   "AVG": 8.99
+ },
+ {
+   "Name": "TEBANI Rania",
+   "AVG_S1": 7.3,
+   "AVG_S2": 7.09,
+   "AVG": 7.2
+ },
+ {
+   "Name": "THAMRI Mayada",
+   "AVG_S1": 10.34,
+   "AVG_S2": 10.71,
+   "AVG": 10.53
+ },
+ {
+   "Name": "THARAFI Sohaib",
+   "AVG_S1": 9.99,
+   "AVG_S2": 10.74,
+   "AVG": 10.37
+ },
+ {
+   "Name": "TITOUM Issam",
+   "AVG_S1": 8.14,
+   "AVG_S2": 6.05,
+   "AVG": 7.1
+ },
+ {
+   "Name": "TITRAOUI Abderraouf",
+   "AVG_S1": 7.87,
+   "AVG_S2": 7.85,
+   "AVG": 7.86
+ },
+ {
+   "Name": "TOUNSI Khawla",
+   "AVG_S1": 8.4,
+   "AVG_S2": 7.29,
+   "AVG": 7.85
+ },
+ {
+   "Name": "TURQUI Akram",
+   "AVG_S1": 8.3,
+   "AVG_S2": 9.39,
+   "AVG": 8.85
+ },
+ {
+   "Name": "YAHIAOUI Safia",
+   "AVG_S1": 8.35,
+   "AVG_S2": 9.35,
+   "AVG": 8.85
+ },
+ {
+   "Name": "YAHIAOUI Samia",
+   "AVG_S1": 5,
+   "AVG_S2": 1.37,
+   "AVG": 3.19
+ },
+ {
+   "Name": "YALLAOUI Salah eddine",
+   "AVG_S1": 8.8,
+   "AVG_S2": 9.36,
+   "AVG": 9.08
+ },
+ {
+   "Name": "ZANAT Chahinez",
+   "AVG_S1": 9.75,
+   "AVG_S2": 11.66,
+   "AVG": 10.71
+ },
+ {
+   "Name": "ZAOUI Anfel",
+   "AVG_S1": 4.37,
+   "AVG_S2": 2.38,
+   "AVG": 3.38
+ },
+ {
+   "Name": "ZAZKAD Aicha",
+   "AVG_S1": 6.99,
+   "AVG_S2": 6.44,
+   "AVG": 6.72
+ },
+ {
+   "Name": "ZEGHBA Loubna",
+   "AVG_S1": 7.6,
+   "AVG_S2": 4.82,
+   "AVG": 6.21
+ },
+ {
+   "Name": "ZEGHOUGH Yahia",
+   "AVG_S1": 1.35,
+   "AVG_S2": 10,
+   "AVG": 5.68
+ },
+ {
+   "Name": "ZELLAGUI Safwan",
+   "AVG_S1": 12.1,
+   "AVG_S2": 12.43,
+   "AVG": 12.27
+ },
+ {
+   "Name": "ZEMIH Brahim",
+   "AVG_S1": 8.7,
+   "AVG_S2": 9.66,
+   "AVG": 9.18
+ },
+ {
+   "Name": "ZIANE Aya",
+   "AVG_S1": 9.11,
+   "AVG_S2": 6.08,
+   "AVG": 7.6
+ },
+ {
+   "Name": "ZIANI Rym",
+   "AVG_S1": 10.71,
+   "AVG_S2": 12.77,
+   "AVG": 11.74
+ },
+ {
+   "Name": "ZIAZIA Wail mounib",
+   "AVG_S1": 9.33,
+   "AVG_S2": 10.67,
+   "AVG": 10
+ },
+ {
+   "Name": "ZIDANI Ilhem",
+   "AVG_S1": 4.9,
+   "AVG_S2": 4.67,
+   "AVG": 4.79
+ },
+ {
+   "Name": "ZIDELKHIL Hana",
+   "AVG_S1": 11.84,
+   "AVG_S2": 9.83,
+   "AVG": 10.84
+ },
+ {
+   "Name": "ZIDELKHIL Yousra",
+   "AVG_S1": 13.01,
+   "AVG_S2": 12.92,
+   "AVG": 12.97
+ },
+ {
+   "Name": "ZIKEM Ridha",
+   "AVG_S1": 8.68,
+   "AVG_S2": 8.89,
+   "AVG": 8.79
+ },
+ {
+   "Name": "ZIOUCHE Bouthaina",
+   "AVG_S1": 10.2,
+   "AVG_S2": 7.83,
+   "AVG": 9.02
+ },
+ {
+   "Name": "ZOUBIRI Chahinez",
+   "AVG_S1": 11.42,
+   "AVG_S2": 10.73,
+   "AVG": 11.08
+ }
+]
+    ;
+  
+   
+    let currentSort = null;
+    let originalData = [...studentData];
+    let filteredData = [...studentData];
+    const headers = Object.keys(studentData[0]);
+
+    function createButtons() {
+      const controls = document.getElementById("controls");
+      headers.slice(1).forEach(header => {
+        const btn = document.createElement("button");
+        btn.textContent = header;
+        btn.dataset.sorted = "false";
+        btn.onclick = () => toggleSort(header, btn);
+        if (header === "AVG") btn.classList.add("avg-button");
+        controls.appendChild(btn);
+      });
+    }
+
+    function toggleSort(column, btn) {
+      if (currentSort === column && btn.dataset.sorted === "true") {
+        btn.dataset.sorted = "false";
+        currentSort = null;
+        displayTable(filteredData);
+      } else {
+        document.querySelectorAll("button").forEach(b => b.dataset.sorted = "false");
+        btn.dataset.sorted = "true";
+        currentSort = column;
+        const sorted = [...filteredData].sort((a, b) => b[column] - a[column]);
+        displayTable(sorted, column);
+      }
+    }
+
+    function displayTable(data, sortedColumn = null) {
+      const table = document.getElementById("dataTable");
+      const noResultsDiv = document.getElementById("noResults");
+      table.innerHTML = "";
+
+      if (data.length === 0) {
+        noResultsDiv.style.display = "block";
+        return;
+      } else {
+        noResultsDiv.style.display = "none";
+      }
+
+      // Create table header
+      const thead = document.createElement("thead");
+      const headerRow = document.createElement("tr");
+      headerRow.appendChild(document.createElement("th"));
+      headers.forEach(header => {
+        const th = document.createElement("th");
+        th.textContent = header;
+        headerRow.appendChild(th);
+      });
+      thead.appendChild(headerRow);
+      table.appendChild(thead);
+
+      const tbody = document.createElement("tbody");
+
+      // Calculate averages for students with AVG > 10
+      const above10Students = data.filter(student => student.AVG >= 10);
+      if (above10Students.length > 0) {
+        const above10AvgRow = document.createElement("tr");
+        above10AvgRow.className = "average-above-10-row";
+        const above10Label = document.createElement("td");
+        above10Label.textContent = `AVG of student that have S1+S2 > 10 (Students >10, Nbr of student=${above10Students.length})`;
+        above10Label.classList.add('thin-font');
+
+        above10AvgRow.appendChild(above10Label);
+
+        headers.forEach(header => {
+          const td = document.createElement("td");
+          if (header === "Name") {
+            td.textContent = "";
+          } else {
+            const values = above10Students.map(d => d[header]);
+            const average = (values.reduce((acc, val) => acc + val, 0) / values.length).toFixed(2);
+            td.textContent = average;
+          }
+          above10AvgRow.appendChild(td);
+        });
+        tbody.appendChild(above10AvgRow);
+      }
+
+      // Calculate overall averages
+      const averageRow = document.createElement("tr");
+      averageRow.className = "average-row";
+      const avgLabel = document.createElement("td");
+      avgLabel.textContent = `AVG (All, Nbr of student =${data.length})`;
+      
+
+      averageRow.appendChild(avgLabel);
+
+      headers.forEach(header => {
+        const td = document.createElement("td");
+        if (header === "Name") {
+          td.textContent = "";
+        } else {
+          const values = data.map(d => d[header]);
+          const average = (values.reduce((acc, val) => acc + val, 0) / values.length).toFixed(2);
+          td.textContent = average;
+        }
+        averageRow.appendChild(td);
+      });
+      tbody.appendChild(averageRow);
+
+      // Add student data rows
+      let maxValue = sortedColumn ? Math.max(...data.map(d => d[sortedColumn])) : null;
+
+      data.forEach((row, index) => {
+        const tr = document.createElement("tr");
+        const rankTd = document.createElement("td");
+        rankTd.textContent = sortedColumn ? index + 1 : "-";
+        rankTd.className = sortedColumn ? "sorted-rank" : "";
+        tr.appendChild(rankTd);
+
+        headers.forEach(header => {
+          const td = document.createElement("td");
+          td.textContent = row[header];
+          if (sortedColumn && header === sortedColumn) {
+            td.classList.add("highlight-column");
+            if (row[header] === maxValue) {
+              td.classList.add("highest-score");
+            }
+          }
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+
+      table.appendChild(tbody);
+    }
+
+    function handleSearch() {
+      const input = document.getElementById("searchInput").value.toLowerCase();
+      filteredData = originalData.filter(student => 
+        student.Name.toLowerCase().includes(input)
+      );
+      displayTable(filteredData);
+    }
+
+    createButtons();
+    displayTable(studentData);
+  </script>
+</body>
+</html>
