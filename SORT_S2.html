@@ -287,6 +287,43 @@
         font-size: 0.9rem;
       }
     }
+    .summary-container {
+  background-color: white;
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  margin-bottom: 2rem;
+}
+
+.summary-title {
+  font-family: 'Montserrat', sans-serif;
+  color: var(--secondary);
+  margin-bottom: 0.5rem;
+  font-size: 1.2rem;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+.summary-item {
+  background-color: #f8f9fa;
+  padding: 0.5rem;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.summary-module {
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.summary-count {
+  font-weight: 500;
+  color: var(--dark);
+}
   </style>
 </head>
 <body>
@@ -312,6 +349,59 @@
   </div>
 
   <script>
+       function createModuleSummary(data) {
+  const summaryContainer = document.createElement('div');
+  summaryContainer.className = 'summary-container';
+  
+  const title = document.createElement('div');
+  title.className = 'summary-title';
+  title.textContent = 'Students with Average >= 10 by Module';
+  summaryContainer.appendChild(title);
+  
+  const grid = document.createElement('div');
+  grid.className = 'summary-grid';
+  
+  // Get all module names (exclude Name and AVG_S2)
+  const modules = headers.filter(h => h !== 'Name' && h !== 'AVG_S2');
+  
+  modules.forEach(module => {
+    const count = data.filter(student => student[module] >= 10).length;
+    
+    const item = document.createElement('div');
+    item.className = 'summary-item';
+    
+    const moduleName = document.createElement('div');
+    moduleName.className = 'summary-module';
+    moduleName.textContent = module;
+    
+    const moduleCount = document.createElement('div');
+    moduleCount.className = 'summary-count';
+    moduleCount.textContent = `${count} students`;
+    
+    item.appendChild(moduleName);
+    item.appendChild(moduleCount);
+    grid.appendChild(item);
+  });
+  
+  // Add AVG_S2 count
+  const avgItem = document.createElement('div');
+  avgItem.className = 'summary-item';
+  
+  const avgName = document.createElement('div');
+  avgName.className = 'summary-module';
+  avgName.textContent = 'AVG_S2';
+  
+  const avgCount = document.createElement('div');
+  avgCount.className = 'summary-count';
+  avgCount.textContent = `${data.filter(student => student.AVG_S2 >=10).length} students`;
+  
+  avgItem.appendChild(avgName);
+  avgItem.appendChild(avgCount);
+  grid.appendChild(avgItem);
+  
+  summaryContainer.appendChild(grid);
+  return summaryContainer;
+}
     const studentData =[
  {
    "Name": "1 -  ABDELAZIZ  SOULEYMAN",
@@ -3267,6 +3357,11 @@
       const table = document.getElementById("dataTable");
       const noResultsDiv = document.getElementById("noResults");
       table.innerHTML = "";
+      const container = document.querySelector('.container');
+  const existingSummary = document.querySelector('.summary-container');
+  if (existingSummary) existingSummary.remove();
+  
+  container.insertBefore(createModuleSummary(data), table);
 
       if (data.length === 0) {
         noResultsDiv.style.display = "block";
@@ -3295,7 +3390,7 @@
         const above10AvgRow = document.createElement("tr");
         above10AvgRow.className = "average-above-10-row";
         const above10Label = document.createElement("td");
-        above10Label.textContent = `AVG (Students >10,Nbr of student=${above10Students.length})`;
+        above10Label.textContent = `AVG of the modules of student that have avg_s2>10`;
         above10AvgRow.appendChild(above10Label);
 
         headers.forEach(header => {
@@ -3316,7 +3411,7 @@
       const averageRow = document.createElement("tr");
       averageRow.className = "average-row";
       const avgLabel = document.createElement("td");
-      avgLabel.textContent = `AVG (All, Nbr of student =${data.length})`;
+      avgLabel.textContent = `AVG total of each module`;
       averageRow.appendChild(avgLabel);
 
       headers.forEach(header => {
